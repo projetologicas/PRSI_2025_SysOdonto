@@ -1,2 +1,11 @@
 # PRSI_2025_SysOdonto
-Projeto da Equipe 1 - líder Cauã
+
+Cauã Grigolatto Domingos ⭐
+
+Gabriel de Pauli Santos
+
+Gabriel Dellatore Ezequiel
+
+Gabriel Ventura Pires
+
+João Pedro da Silva Vieira
