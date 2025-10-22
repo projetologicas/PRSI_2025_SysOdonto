@@ -11,3 +11,5 @@ public class SysodontoApplication {
 	}
 
 }
+
+//GOOGLE_CLOUD_PROJECT=sysodonto-demo;GOOGLE_APPLICATION_CREDENTIALS={xxxxxxxxx}/PRSI_2025_SysOdonto/sysodonto/src/main/resources/firestore-key-demo.json
