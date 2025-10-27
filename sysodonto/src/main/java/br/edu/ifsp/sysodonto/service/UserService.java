@@ -47,7 +47,7 @@ public class UserService {
         return userRepository.delete(id);
     }
 
-    public boolean userExists(String email) throws ExecutionException, InterruptedException {
+    public boolean userEmailExists(String email) throws ExecutionException, InterruptedException {
         return userRepository.findByEmail(email).isPresent();
     }
 }
