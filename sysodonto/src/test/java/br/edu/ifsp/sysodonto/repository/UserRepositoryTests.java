@@ -16,7 +16,7 @@ public class UserRepositoryTests {
     void createUser() {
         try {
             log.info("createUser has started.");
-            userRepository.createUser(new User("IntelliJ", "", "intellij@test.com"));
+            userRepository.createUser(new User("IntelliJ", "", "intellij@test.com", "testPassword"));
             log.info("createUser has ended.");
         } catch (Throwable t) {
             log.error("createUser failed.", t);

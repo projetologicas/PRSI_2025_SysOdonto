@@ -13,12 +13,14 @@ public class User {
     private String email;
     private String name;
     private String profilePicture;
+    private String password;
 
     public User() {}
 
-    public User(String name, String profilePicture, String email) {
+    public User(String name, String profilePicture, String email, String password) {
         this.email = email;
         this.name = name;
         this.profilePicture = profilePicture;
+        this.password = password;
     }
 }
