@@ -4,7 +4,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
+import br.edu.ifsp.sysodonto.dto.AuthRequest;
+import br.edu.ifsp.sysodonto.dto.RegisterRequest;
+import br.edu.ifsp.sysodonto.dto.UserResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import br.edu.ifsp.sysodonto.model.User;
@@ -15,12 +19,43 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private PasswordEncoder encoder;
 
-    public User createUser(User user) throws ExecutionException, InterruptedException {
-        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+    public UserResponse registerUser(RegisterRequest dto) throws ExecutionException, InterruptedException {
+        if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
             throw new IllegalArgumentException("Email já cadastrado");
         }
-        return userRepository.save(user);
+
+        var user = new User();
+
+        user.setName(dto.getName());
+        user.setEmail(dto.getEmail());
+        user.setPassword(encoder.encode(user.getPassword()));
+
+        if(dto.getProfilePicture() != null){
+            user.setProfilePicture(dto.getProfilePicture());
+        }
+
+        var saved = userRepository.save(user);
+
+        return UserResponse.from(saved);
+    }
+
+    public UserResponse checkCredentials(AuthRequest dto) throws ExecutionException, InterruptedException {
+        Optional<User> optionalUser = userRepository.findByEmail(dto.getEmail().toLowerCase());
+
+        if(optionalUser.isEmpty()){
+            return null;
+        }
+
+        User user = optionalUser.get();
+
+        if(!encoder.matches(dto.getPassword(), user.getPassword())){
+            return null;
+        }
+
+        return UserResponse.from(user);
     }
 
     public Optional<User> getUserById(String id) throws ExecutionException, InterruptedException {

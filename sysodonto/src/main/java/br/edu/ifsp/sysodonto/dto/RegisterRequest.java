@@ -17,10 +17,13 @@ public class RegisterRequest {
     @NotBlank @Size(min = 6, max = 72)
     private String password;
 
-    public RegisterRequest(String name, String email, String password) {
+    private String profilePicture;
+
+    public RegisterRequest(String name, String email, String password, String profilePicture) {
         this.name = name;
         this.email = email;
         this.password = password;
+        this.profilePicture = profilePicture;
     }
 
     public RegisterRequest(){
@@ -49,5 +52,13 @@ public class RegisterRequest {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getProfilePicture() {
+        return profilePicture;
+    }
+
+    public void setProfilePicture(String profilePicture) {
+        this.profilePicture = profilePicture;
     }
 }

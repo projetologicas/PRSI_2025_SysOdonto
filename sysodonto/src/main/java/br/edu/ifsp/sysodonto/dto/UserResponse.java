@@ -21,7 +21,7 @@ public class UserResponse {
         response.email = user.getEmail();
         return response;
     }
-    
+
     public String getName() {
         return name;
     }
