@@ -9,7 +9,7 @@ import br.edu.ifsp.sysodonto.dto.RegisterRequest;
 import br.edu.ifsp.sysodonto.dto.UserResponse;
 import br.edu.ifsp.sysodonto.exceptions.EmailAlreadyUsedException;
 import br.edu.ifsp.sysodonto.exceptions.InvalidCredentialsException;
-import br.edu.ifsp.sysodonto.exceptions.UserNotFoudException;
+import br.edu.ifsp.sysodonto.exceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -34,7 +34,7 @@ public class UserService {
 
         user.setName(dto.getName());
         user.setEmail(dto.getEmail());
-        user.setPassword(encoder.encode(user.getPassword()));
+        user.setPassword(encoder.encode(dto.getPassword()));
 
         if(dto.getProfilePicture() != null){
             user.setProfilePicture(dto.getProfilePicture());
@@ -49,7 +49,7 @@ public class UserService {
         Optional<User> optionalUser = userRepository.findByEmail(dto.getEmail().toLowerCase());
 
         if(optionalUser.isEmpty()){
-            throw new UserNotFoudException("Usuário não encontrado com email: " +  dto.getEmail());
+            throw new UserNotFoundException("Usuário não encontrado com email: " +  dto.getEmail());
         }
 
         User user = optionalUser.get();
