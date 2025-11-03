@@ -29,7 +29,7 @@ public class PatientRepository {
     @Value("${firestore.collection.patients}")
     private String patientsCollection;
     
-    public Patient createUser(Patient patient) throws ExecutionException, InterruptedException {
+    public Patient createPatient(Patient patient) throws ExecutionException, InterruptedException {
         DocumentReference docRef = db.collection(patientsCollection).document();
         patient.setId(docRef.getId());
         ApiFuture<WriteResult> future = docRef.set(patient);
@@ -60,6 +60,19 @@ public class PatientRepository {
             return Optional.of(document.toObject(Patient.class));
         }
         return Optional.empty();
+    }
+    
+    public List<Patient> findByUserId(String userId) throws ExecutionException, InterruptedException {
+        CollectionReference patients = db.collection(patientsCollection);
+        Query query = patients.whereEqualTo("userId", userId);
+        ApiFuture<QuerySnapshot> future = query.get();
+        QuerySnapshot querySnapshot = future.get();
+        
+        List<Patient> patientList = new ArrayList<>();
+        for (DocumentSnapshot document : querySnapshot.getDocuments()) {
+            patientList.add(document.toObject(Patient.class));
+        }
+        return patientList;
     }
 
     public Optional<Patient> findByTelephone(String telephone) throws ExecutionException, InterruptedException {

@@ -88,4 +88,45 @@ public class UserService {
     public boolean userEmailExists(String email) throws ExecutionException, InterruptedException {
         return userRepository.findByEmail(email).isPresent();
     }
+    
+    public void changePassword(String userId, String currentPassword, String newPassword) throws ExecutionException, InterruptedException {
+        Optional<User> optionalUser = userRepository.findById(userId);
+        
+        if (optionalUser.isEmpty()) {
+            throw new UserNotFoundException("Usuário não encontrado com ID: " + userId);
+        }
+        
+        User user = optionalUser.get();
+        
+        if (!encoder.matches(currentPassword, user.getPassword())) {
+            throw new InvalidCredentialsException("Senha atual incorreta.");
+        }
+        
+        if (encoder.matches(newPassword, user.getPassword())) {
+            throw new IllegalArgumentException("A nova senha deve ser diferente da senha atual.");
+        }
+        
+        user.setPassword(encoder.encode(newPassword));
+        userRepository.save(user);
+    }
+    
+    public void updateProfile(String userId, String newName, String newProfilePicture) throws ExecutionException, InterruptedException {
+        Optional<User> optionalUser = userRepository.findById(userId);
+        
+        if (optionalUser.isEmpty()) {
+            throw new UserNotFoundException("Usuário não encontrado com ID: " + userId);
+        }
+        
+        User user = optionalUser.get();
+        
+        if (newName != null && !newName.trim().isEmpty()) {
+            user.setName(newName.trim());
+        }
+        
+        if (newProfilePicture != null) {
+            user.setProfilePicture(newProfilePicture);
+        }
+        
+        userRepository.save(user);
+    }
 }
