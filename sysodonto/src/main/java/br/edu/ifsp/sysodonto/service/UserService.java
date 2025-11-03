@@ -9,6 +9,7 @@ import br.edu.ifsp.sysodonto.dto.RegisterRequest;
 import br.edu.ifsp.sysodonto.dto.UserResponse;
 import br.edu.ifsp.sysodonto.exceptions.EmailAlreadyUsedException;
 import br.edu.ifsp.sysodonto.exceptions.InvalidCredentialsException;
+import br.edu.ifsp.sysodonto.exceptions.UserNotFoudException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -47,11 +48,15 @@ public class UserService {
     public UserResponse checkCredentials(AuthRequest dto) throws ExecutionException, InterruptedException {
         Optional<User> optionalUser = userRepository.findByEmail(dto.getEmail().toLowerCase());
 
-        if(optionalUser.isEmpty() && !encoder.matches(dto.getPassword(), optionalUser.get().getPassword())){
-            throw new InvalidCredentialsException("E-mail ou senha inválidos.");
+        if(optionalUser.isEmpty()){
+            throw new UserNotFoudException("Usuário não encontrado com email: " +  dto.getEmail());
         }
 
         User user = optionalUser.get();
+
+        if(!encoder.matches(dto.getPassword(), user.getPassword())){
+            throw new InvalidCredentialsException("E-mail ou senha inválidos.");
+        }
 
         return UserResponse.from(user);
     }

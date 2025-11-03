@@ -28,22 +28,12 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<UserResponse> register(@Valid @RequestBody RegisterRequest dto) throws ExecutionException, InterruptedException {
         UserResponse userResponse = userService.registerUser(dto);
-
-        if(userResponse == null){
-            return ResponseEntity.status(HttpStatusCode.valueOf(403)).build();
-        }
-
         return ResponseEntity.ok(userResponse);
     }
 
     @PostMapping("/login")
     public ResponseEntity<UserResponse> login(@Valid @RequestBody AuthRequest dto) throws ExecutionException, InterruptedException {
         UserResponse userResponse = userService.checkCredentials(dto);
-
-        if(userResponse == null){
-            return ResponseEntity.status(HttpStatusCode.valueOf(401)).build();
-        }
-
         return ResponseEntity.ok(userResponse);
     }
 
