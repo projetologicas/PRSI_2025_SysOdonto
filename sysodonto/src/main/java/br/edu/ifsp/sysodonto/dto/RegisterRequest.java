@@ -10,15 +10,17 @@ import lombok.Setter;
 @Setter
 public class RegisterRequest {
 
-    @NotBlank
+    @NotBlank(message = "É necessário fornecer um nome")
     @Size(max = 120)
     private String name;
 
-    @NotBlank @Email(message = "Formato de e-mail inválido.")
+    @NotBlank(message = "É necessário fornecer um e-mail")
+    @Email(message = "Formato de e-mail inválido.")
     @Size(max = 180)
     private String email;
 
-    @NotBlank @Size(min = 6, max = 72)
+    @NotBlank(message = "É necessário fornecer uma senha")
+    @Size(min = 6, max = 72, message = "A senha deve conter entre 6 a 72 caracteres")
     private String password;
 
     private String profilePicture;

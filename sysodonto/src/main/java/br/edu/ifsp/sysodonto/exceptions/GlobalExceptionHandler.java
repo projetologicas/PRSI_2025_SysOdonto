@@ -4,6 +4,7 @@ import br.edu.ifsp.sysodonto.error.RestError;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -20,6 +21,25 @@ public class GlobalExceptionHandler {
     public ResponseEntity<RestError> handleInvalidCredentials(InvalidCredentialsException ex, HttpServletRequest request){
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(RestError.of(HttpStatus.UNAUTHORIZED, ex.getMessage(), request.getRequestURI()));
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<RestError> handleValidationCredentials(MethodArgumentNotValidException ex, HttpServletRequest request){
+        String message = ex.getFieldErrors().stream()
+                .map(error -> error.getDefaultMessage())
+                .findFirst()
+                .orElse("Erro de validação");
+
+        return ResponseEntity.badRequest().body(RestError.of(HttpStatus.BAD_REQUEST, message, request.getRequestURI()));
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<RestError> handleUnexpected(Exception ex,
+                                                      HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(RestError.of(HttpStatus.INTERNAL_SERVER_ERROR,
+                        "Erro interno. Tente novamente mais tarde. Se o erro persistir, contate o administrador",
+                        request.getRequestURI()));
     }
 
 }
