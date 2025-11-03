@@ -7,6 +7,8 @@ import java.util.concurrent.ExecutionException;
 import br.edu.ifsp.sysodonto.dto.AuthRequest;
 import br.edu.ifsp.sysodonto.dto.RegisterRequest;
 import br.edu.ifsp.sysodonto.dto.UserResponse;
+import br.edu.ifsp.sysodonto.exceptions.EmailAlreadyUsedException;
+import br.edu.ifsp.sysodonto.exceptions.InvalidCredentialsException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -24,7 +26,7 @@ public class UserService {
 
     public UserResponse registerUser(RegisterRequest dto) throws ExecutionException, InterruptedException {
         if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
-            throw new IllegalArgumentException("Email já cadastrado");
+            throw new EmailAlreadyUsedException("E-mail já cadastrado.");
         }
 
         var user = new User();
@@ -45,15 +47,11 @@ public class UserService {
     public UserResponse checkCredentials(AuthRequest dto) throws ExecutionException, InterruptedException {
         Optional<User> optionalUser = userRepository.findByEmail(dto.getEmail().toLowerCase());
 
-        if(optionalUser.isEmpty()){
-            return null;
+        if(optionalUser.isEmpty() && !encoder.matches(dto.getPassword(), optionalUser.get().getPassword())){
+            throw new InvalidCredentialsException("E-mail ou senha inválidos.");
         }
 
         User user = optionalUser.get();
-
-        if(!encoder.matches(dto.getPassword(), user.getPassword())){
-            return null;
-        }
 
         return UserResponse.from(user);
     }
