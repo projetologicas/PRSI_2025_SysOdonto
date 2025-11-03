@@ -1,7 +1,11 @@
 package br.edu.ifsp.sysodonto.dto;
 
 import br.edu.ifsp.sysodonto.model.User;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 public class UserResponse {
     private String name;
     private String email;
@@ -22,20 +26,5 @@ public class UserResponse {
         return response;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
 
 }
