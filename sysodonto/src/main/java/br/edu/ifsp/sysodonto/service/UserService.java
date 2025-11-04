@@ -61,6 +61,22 @@ public class UserService {
         return UserResponse.from(user);
     }
 
+    public User checkCredentialsAndReturnUser(AuthRequest dto) throws ExecutionException, InterruptedException {
+        Optional<User> optionalUser = userRepository.findByEmail(dto.getEmail().toLowerCase());
+
+        if(optionalUser.isEmpty()){
+            throw new UserNotFoundException("Usuário não encontrado com email: " +  dto.getEmail());
+        }
+
+        User user = optionalUser.get();
+
+        if(!encoder.matches(dto.getPassword(), user.getPassword())){
+            throw new InvalidCredentialsException("E-mail ou senha inválidos.");
+        }
+
+        return user;
+    }
+
     public Optional<User> getUserById(String id) throws ExecutionException, InterruptedException {
         return userRepository.findById(id);
     }
