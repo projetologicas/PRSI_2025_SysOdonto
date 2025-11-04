@@ -9,7 +9,7 @@ public class AuthResponse {
     }
 
     public AuthResponse(){
-        
+
     }
 
     public String getToken() {
