@@ -20,11 +20,11 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 @Component
-public class JwtAuthFilter extends OncePerRequestFilter {
+public class JwtFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final UserRepository userRepository;
 
-    public JwtAuthFilter(JwtService jwtService, UserRepository userRepository) {
+    public JwtFilter(JwtService jwtService, UserRepository userRepository) {
         this.jwtService = jwtService;
         this.userRepository = userRepository;
     }
@@ -43,7 +43,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             Optional<User> optionalUser = null;
-            
+
             try {
                 optionalUser = userRepository.findByEmail(email.toLowerCase());
             } catch (ExecutionException e) {
