@@ -28,6 +28,8 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable()) // Desativa proteção contra CSRF para APIs REST
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll() // Libera essas rotas
+                        .requestMatchers("/view/auth/**").permitAll()
+                        .requestMatchers("/css/**", "/js/**", "/images/**", "/templates/**").permitAll()
                         .anyRequest().authenticated() // Bloqueia o resto
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

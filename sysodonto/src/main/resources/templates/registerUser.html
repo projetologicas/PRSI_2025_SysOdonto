@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro - SysOdonto</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link th:href="@{/css/registerUser.css}" rel="stylesheet">
+</head>
+<body>
+    <div class="register-container">
+        <div class="register-header">
+            <h2><i class="fas fa-tooth me-2"></i>SysOdonto</h2>
+            <p class="mb-0">Crie sua conta</p>
+        </div>
+        
+        <div class="register-body">
+            <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i>
+                <span th:text="${success}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            
+            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <span th:text="${error}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <form th:action="@{/view/auth/register}" th:object="${registerRequest}" method="post" id="registerForm">
+                <div class="profile-picture-upload">
+                    <div class="profile-picture-placeholder" id="profilePicturePlaceholder">
+                        <i class="fas fa-camera"></i>
+                    </div>
+                    <input type="file" id="profilePicture" accept="image/*" style="display: none;">
+                    <small class="text-muted">Clique para adicionar uma foto</small>
+                    <input type="hidden" th:field="*{profilePicture}" id="profilePictureBase64">
+                </div>
+
+                <div class="form-group">
+                    <label for="name" class="form-label">Nome da conta</label>
+                    <input type="text" class="form-control" id="name" th:field="*{name}" 
+                           placeholder="Digite seu nome completo" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" th:field="*{email}" 
+                           placeholder="seu@email.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password" class="form-label">Senha</label>
+                    <input type="password" class="form-control" id="password" th:field="*{password}" 
+                           placeholder="Digite sua senha" required>
+                    <div class="password-strength">
+                        <div class="password-strength-bar" id="passwordStrengthBar"></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword" class="form-label">Confirme sua senha</label>
+                    <input type="password" class="form-control" id="confirmPassword" th:field="*{confirmPassword}" 
+                           placeholder="Digite novamente sua senha" required>
+                    <small id="passwordMatchMessage" class="form-text"></small>
+                </div>
+
+                <button type="submit" class="btn btn-register" id="submitBtn">
+                    <i class="fas fa-user-plus me-2"></i>Criar Conta
+                </button>
+            </form>
+
+            <div class="login-link">
+                Já possuo uma conta <a th:href="@{/view/auth/login}">Entrar</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/js/registerUser.js}"></script>
+</body>
+</html>
