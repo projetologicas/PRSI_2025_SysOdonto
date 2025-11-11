@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
+import br.edu.ifsp.sysodonto.exceptions.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,19 +22,19 @@ public class PatientService {
 
     public Patient createPatient(Patient patient) throws ExecutionException, InterruptedException {
         if (!validationService.isValidCPF(patient.getCpf())) {
-            throw new IllegalArgumentException("CPF inválido");
+            throw new InvalidCpfException("CPF inválido");
         }
 
         if (patientRepository.findByCpf(patient.getCpf()).isPresent()) {
-            throw new IllegalArgumentException("CPF já cadastrado");
+            throw new CpfAlreadyUsedException("CPF já cadastrado");
         }
 
         if (!validationService.isValidPhone(patient.getTelephone())) {
-            throw new IllegalArgumentException("Telefone inválido");
+            throw new InvalidTelephoneException("Telefone inválido");
         }
 
         if (patientRepository.findByTelephone(patient.getTelephone()).isPresent()) {
-            throw new IllegalArgumentException("Telefone já cadastrado");
+            throw new TelephoneAlreadyUsedException("Telefone já cadastrado");
         }
 
         return patientRepository.save(patient);
@@ -50,7 +51,7 @@ public class PatientService {
     public Patient updatePatient(String id, Patient patient) throws ExecutionException, InterruptedException {
         Optional<Patient> existingPatient = patientRepository.findById(id);
         if (existingPatient.isEmpty()) {
-            throw new IllegalArgumentException("Paciente não encontrado");
+            throw new PatientNotFoundException("Paciente não encontrado");
         }
 
         patient.setId(id);

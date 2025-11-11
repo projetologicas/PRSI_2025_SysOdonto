@@ -91,7 +91,7 @@ public class UserService {
 
     public User updateUser(String id, User user) throws ExecutionException, InterruptedException {
         if (!userRepository.findById(id).isPresent()) {
-            throw new IllegalArgumentException("Usuário não encontrado");
+            throw new UserNotFoundException("Usuário não encontrado");
         }
         user.setId(id);
         return userRepository.save(user);

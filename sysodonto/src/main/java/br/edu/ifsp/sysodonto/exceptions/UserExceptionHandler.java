@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
-public class GlobalExceptionHandler {
+public class UserExceptionHandler {
 
     @ExceptionHandler(EmailAlreadyUsedException.class)
     public ResponseEntity<RestError> handleEmailAlreadyUsed(EmailAlreadyUsedException ex, HttpServletRequest request){
@@ -39,6 +39,17 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(RestError.of(
                         HttpStatus.NOT_FOUND,
+                        ex.getMessage(),
+                        request.getRequestURI()
+                ));
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<RestError> handleIllegalArgument(IllegalArgumentException ex,
+                                                           HttpServletRequest request){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(RestError.of(
+                        HttpStatus.BAD_REQUEST,
                         ex.getMessage(),
                         request.getRequestURI()
                 ));
