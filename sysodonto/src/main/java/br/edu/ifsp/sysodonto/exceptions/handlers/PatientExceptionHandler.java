@@ -1,6 +1,7 @@
-package br.edu.ifsp.sysodonto.exceptions;
+package br.edu.ifsp.sysodonto.exceptions.handlers;
 
 import br.edu.ifsp.sysodonto.error.RestError;
+import br.edu.ifsp.sysodonto.exceptions.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

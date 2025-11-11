@@ -1,6 +1,9 @@
-package br.edu.ifsp.sysodonto.exceptions;
+package br.edu.ifsp.sysodonto.exceptions.handlers;
 
 import br.edu.ifsp.sysodonto.error.RestError;
+import br.edu.ifsp.sysodonto.exceptions.EmailAlreadyUsedException;
+import br.edu.ifsp.sysodonto.exceptions.InvalidCredentialsException;
+import br.edu.ifsp.sysodonto.exceptions.UserNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

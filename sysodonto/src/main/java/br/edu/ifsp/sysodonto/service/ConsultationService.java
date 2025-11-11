@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
+import br.edu.ifsp.sysodonto.exceptions.ConsultationNotFoundException;
+import br.edu.ifsp.sysodonto.exceptions.ScheduleConflictException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +23,7 @@ public class ConsultationService {
             throws ExecutionException, InterruptedException {
         
         if (hasScheduleConflict(consultation.getUserId(), consultation.getDateTime())) {
-            throw new IllegalArgumentException("Conflito de horário detectado");
+            throw new ScheduleConflictException("Conflito de horário detectado");
         }
         
         Consultation savedConsultation = consultationRepository.save(consultation);
@@ -41,7 +43,7 @@ public class ConsultationService {
             throws ExecutionException, InterruptedException {
         
         if (!consultationRepository.findById(id).isPresent()) {
-            throw new IllegalArgumentException("Consulta não encontrada");
+            throw new ConsultationNotFoundException("Consulta não encontrada");
         }
         
         consultation.setId(id);
