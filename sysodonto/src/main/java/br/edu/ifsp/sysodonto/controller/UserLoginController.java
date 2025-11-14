@@ -45,7 +45,7 @@ public class UserLoginController {
 
             redirectAttributes.addFlashAttribute("success", "Login realizado com sucesso!");
             
-            return "dashboard";
+            return "redirect:/view/dashboard";
 
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "E-mail ou senha inválidos.");
