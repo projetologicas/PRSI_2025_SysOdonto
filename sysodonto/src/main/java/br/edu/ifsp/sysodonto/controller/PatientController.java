@@ -13,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -79,6 +80,74 @@ public class PatientController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Erro inesperado ao salvar paciente.");
             return "redirect:/view/patients/new";
+        }
+    }
+    
+    @GetMapping("/update/{id}")
+    public String showEditForm(@PathVariable("id") String id, 
+                              Model model, 
+                              Authentication authentication,
+                              RedirectAttributes redirectAttributes) {
+        try {
+            User loggedUser = (User) authentication.getPrincipal();
+            String userId = loggedUser.getId();
+
+            Patient patient = patientService.getPatientById(id)
+                    .orElseThrow(() -> new RuntimeException("Paciente não encontrado"));
+
+            if (!patient.getUserId().equals(userId)) {
+                redirectAttributes.addFlashAttribute("error", "Acesso negado.");
+                return "redirect:/view/patients";
+            }
+
+            model.addAttribute("patient", patient);
+            model.addAttribute("isEdit", true);
+            return "patients/form";
+
+        } catch (ExecutionException | InterruptedException e) {
+            redirectAttributes.addFlashAttribute("error", "Erro ao carregar paciente: " + e.getMessage());
+            return "redirect:/view/patients";
+        } catch (RuntimeException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/view/patients";
+        }
+    }
+    
+    @PostMapping("/update/{id}")
+    public String updatePatient(@PathVariable("id") String id,
+                               @ModelAttribute("patient") Patient patient,
+                               Authentication authentication,
+                               RedirectAttributes redirectAttributes) {
+
+        try {
+            User loggedUser = (User) authentication.getPrincipal();
+            String userId = loggedUser.getId();
+
+            Patient existingPatient = patientService.getPatientById(id)
+                    .orElseThrow(() -> new RuntimeException("Paciente não encontrado"));
+
+            if (!existingPatient.getUserId().equals(userId)) {
+                redirectAttributes.addFlashAttribute("error", "Acesso negado.");
+                return "redirect:/view/patients";
+            }
+
+            patient.setId(id);
+            patient.setUserId(userId);
+
+            patientService.updatePatient(id, patient);
+
+            redirectAttributes.addFlashAttribute("success", "Paciente atualizado com sucesso!");
+            return "redirect:/view/patients";
+
+        } catch (ExecutionException | InterruptedException e) {
+            redirectAttributes.addFlashAttribute("error", "Erro ao atualizar paciente: " + e.getMessage());
+            return "redirect:/view/patients/edit/" + id;
+        } catch (RuntimeException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/view/patients";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Erro inesperado ao atualizar paciente.");
+            return "redirect:/view/patients/edit/" + id;
         }
     }
 }

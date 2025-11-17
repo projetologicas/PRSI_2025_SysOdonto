@@ -37,7 +37,7 @@ public class UserViewController {
             }
 
             userService.registerUser(registerRequest);
-            redirectAttributes.addFlashAttribute("success", "Cadastro realizado com sucesso! Faça login para continuar.");
+            redirectAttributes.addFlashAttribute("success", "Cadastro realizado com sucesso!");
             return "redirect:/view/auth/login";
             
         } catch (EmailAlreadyUsedException e) {
