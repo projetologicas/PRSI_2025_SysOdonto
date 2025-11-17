@@ -1,6 +1,6 @@
 package br.edu.ifsp.sysodonto.service;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -38,6 +38,10 @@ public class ConsultationService {
     public List<Consultation> getConsultationsByPatientId(String patientId) throws ExecutionException, InterruptedException {
         return consultationRepository.findByPatientId(patientId);
     }
+    
+    public List<Consultation> getConsultationsByUserId(String userId) throws ExecutionException, InterruptedException {
+        return consultationRepository.findByUserId(userId);
+    }
 
     public Consultation updateConsultation(String id, Consultation consultation, boolean sendReminder) 
             throws ExecutionException, InterruptedException {
@@ -56,8 +60,12 @@ public class ConsultationService {
         return consultationRepository.delete(id);
     }
 
-    public boolean hasScheduleConflict(String userId, LocalDateTime dateTime) throws ExecutionException, InterruptedException {
-        List<Consultation> existingConsultations = consultationRepository.findByUserIdAndDateTime(userId, dateTime);
+    public boolean hasScheduleConflict(String userId, Date dateTime)
+            throws ExecutionException, InterruptedException {
+
+        List<Consultation> existingConsultations =
+                consultationRepository.findByUserIdAndDateTime(userId, dateTime);
+
         return !existingConsultations.isEmpty();
     }
 }

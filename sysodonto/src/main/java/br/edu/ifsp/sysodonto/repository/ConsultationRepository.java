@@ -1,6 +1,6 @@
 package br.edu.ifsp.sysodonto.repository;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -8,8 +8,8 @@ import java.util.concurrent.ExecutionException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.beans.factory.annotation.Value;
 
-import com.google.api.client.util.Value;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
@@ -89,13 +89,17 @@ public class ConsultationRepository {
         return consultationList;
     }
 
-    public List<Consultation> findByUserIdAndDateTime(String userId, LocalDateTime dateTime) throws ExecutionException, InterruptedException {
+    public List<Consultation> findByUserIdAndDateTime(String userId, Date dateTime)
+            throws ExecutionException, InterruptedException {
+
         CollectionReference consultations = db.collection(consultationsCollection);
-        Query query = consultations.whereEqualTo("userId", userId)
-                                  .whereEqualTo("dateTime", dateTime);
+        Query query = consultations
+                .whereEqualTo("userId", userId)
+                .whereEqualTo("dateTime", dateTime);
+
         ApiFuture<QuerySnapshot> future = query.get();
         QuerySnapshot querySnapshot = future.get();
-        
+
         List<Consultation> consultationList = new ArrayList<>();
         for (DocumentSnapshot document : querySnapshot.getDocuments()) {
             consultationList.add(document.toObject(Consultation.class));

@@ -1,8 +1,10 @@
 package br.edu.ifsp.sysodonto.model;
 
 import java.util.Date;
+
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 @Getter
 @Setter
@@ -14,8 +16,13 @@ public class Patient {
 	private String picture;
 	private String cpf;
 	private String telephone;
+
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private Date birthDate;
+
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private Date startTreatmentDate;
+
 	private String observations;
 
 	public Patient() {}
@@ -30,5 +37,4 @@ public class Patient {
 		this.startTreatmentDate = startTreatmentDate;
 		this.observations = observations;
 	}
-
 }

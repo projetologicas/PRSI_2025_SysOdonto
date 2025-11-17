@@ -43,6 +43,10 @@ public class PatientService {
     public Optional<Patient> getPatientById(String id) throws ExecutionException, InterruptedException {
         return patientRepository.findById(id);
     }
+    
+    public List<Patient> getPatientsByUserId(String userId) throws ExecutionException, InterruptedException {
+        return patientRepository.findByUserId(userId);
+    }
 
     public List<Patient> getAllPatients() throws ExecutionException, InterruptedException {
         return patientRepository.findAll();

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Novo Paciente - SysOdonto</title>
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+	rel="stylesheet">
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<link th:href="@{/css/registerUser.css}" rel="stylesheet">
+</head>
+<body>
+	<div class="register-container">
+		<div class="register-header">
+			<h2>
+				<i class="fas fa-tooth me-2"></i>SysOdonto
+			</h2>
+			<p class="mb-0">Cadastrar novo paciente</p>
+		</div>
+
+		<div class="register-body">
+
+			<!-- Alertas -->
+			<div th:if="${success}"
+				class="alert alert-success alert-dismissible fade show" role="alert">
+				<i class="fas fa-check-circle me-2"></i> <span th:text="${success}"></span>
+				<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+			</div>
+
+			<div th:if="${error}"
+				class="alert alert-danger alert-dismissible fade show" role="alert">
+				<i class="fas fa-exclamation-circle me-2"></i> <span
+					th:text="${error}"></span>
+				<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+			</div>
+
+			<form th:action="@{/view/patients}" th:object="${patient}"
+				method="post">
+				<div class="row">
+					<div class="col-12 mb-3 text-center">
+						<div class="profile-picture-upload mb-2">
+							<div class="profile-picture-placeholder"
+								id="patientPicturePreview">
+								<i class="fas fa-camera"></i>
+							</div>
+
+							<input type="file" id="patientPictureFile" accept="image/*"
+								style="display: none;">
+
+							<input type="hidden" id="patientPictureBase64"
+								th:field="*{picture}"> <small class="text-muted">Clique
+								na imagem para escolher uma foto</small>
+						</div>
+					</div>
+
+					<div class="col-12 mb-3">
+						<label class="form-label" for="name">Nome completo</label> <input
+							type="text" class="form-control" id="name" th:field="*{name}"
+							placeholder="Nome do paciente" required>
+					</div>
+
+					<div class="col-md-6 mb-3">
+						<label class="form-label" for="cpf">CPF</label> <input type="text"
+							class="form-control" id="cpf" th:field="*{cpf}"
+							placeholder="000.000.000-00" required>
+					</div>
+
+					<div class="col-md-6 mb-3">
+						<label class="form-label" for="telephone">Telefone</label> <input
+							type="text" class="form-control" id="telephone"
+							th:field="*{telephone}" placeholder="(16) 99999-9999" required>
+					</div>
+
+					<div class="col-md-6 mb-3">
+						<label class="form-label" for="birthDate">Data de
+							Nascimento</label> <input type="date" class="form-control" id="birthDate"
+							th:field="*{birthDate}">
+					</div>
+
+					<div class="col-md-6 mb-3">
+						<label class="form-label" for="startTreatmentDate">Data de
+							Início do Tratamento</label> <input type="date" class="form-control"
+							id="startTreatmentDate" th:field="*{startTreatmentDate}">
+					</div>
+
+					<div class="col-12 mb-3">
+						<label class="form-label" for="observations">Observações</label>
+						<textarea class="form-control" id="observations"
+							th:field="*{observations}" rows="4"
+							placeholder="Informações adicionais sobre o paciente, histórico, anotações, etc."></textarea>
+					</div>
+				</div>
+
+				<div class="d-flex justify-content-between mt-3">
+					<a th:href="@{/view/patients}" class="btn btn-outline-secondary">
+						<i class="fas fa-arrow-left me-2"></i>Voltar
+					</a>
+					<button type="submit" class="btn btn-register">
+						<i class="fas fa-save me-2"></i>Salvar paciente
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<script
+		src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+	<script>
+    const fileInput = document.getElementById("patientPictureFile");
+    const preview = document.getElementById("patientPicturePreview");
+    const hiddenBase64 = document.getElementById("patientPictureBase64");
+
+    preview.addEventListener("click", () => {
+        fileInput.click();
+    });
+
+    fileInput.addEventListener("change", () => {
+        const file = fileInput.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+            const base64 = e.target.result;
+            hiddenBase64.value = base64;
+            preview.style.backgroundImage = `url('${base64}')`;
+            preview.innerHTML = "";
+        };
+
+        reader.readAsDataURL(file);
+    });
+</script>
+
+	<style>
+.profile-picture-upload {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	cursor: pointer;
+}
+
+.profile-picture-placeholder {
+	width: 140px;
+	height: 140px;
+	background-color: #f0f0f0;
+	border-radius: 50%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-size: 40px;
+	color: #777;
+	background-size: cover;
+	background-position: center;
+}
+</style>
+
+</body>
+</html>
