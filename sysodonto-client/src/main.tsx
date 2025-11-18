@@ -1,7 +1,11 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
+import {StrictMode} from 'react'
+import {createRoot} from 'react-dom/client'
 import './index.css'
-import App from './App.tsx'
+import 'primereact/resources/themes/lara-light-blue/theme.css'; // Tema azul
+import 'primereact/resources/primereact.min.css'; // Componentes
+import 'primeflex/primeflex.css';
+import 'primeicons/primeicons.css';
+import App from "./App.tsx";
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
