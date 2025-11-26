@@ -20,7 +20,7 @@ export function Register() {
     });
 
     const toast = useRef<Toast>(null);
-    const {user, setUser} = useStoreLoggedUser();
+    const {setUser} = useStoreLoggedUser();
     const [previewImage, setPreviewImage] = useState<string | null>(null);
     const navigate = useNavigate();
 
@@ -72,7 +72,7 @@ export function Register() {
                         detail: data.message,
                         life: 3000
                     });
-                    navigate("/home")
+                    navigate("/formpacient")
                 } else {
                     toast.current?.show({
                         severity: 'error',
@@ -93,8 +93,6 @@ export function Register() {
 
 
     }
-
-    console.warn(user)
 
     return (
 

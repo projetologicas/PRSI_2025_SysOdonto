@@ -1,12 +1,11 @@
 import {BrowserRouter, Route, Routes} from "react-router-dom";
 import Login from "./app/Login.tsx";
 import {Register} from "./app/Register.tsx";
-import {Home} from "./app/Home.tsx";
+import {FormPacient} from "./app/FormPacient.tsx";
 import {useStoreToken} from "./features/user-features.ts";
 
 function App() {
     const {token} = useStoreToken();
-
 
     return (
         <BrowserRouter>
@@ -17,7 +16,7 @@ function App() {
 
             {token &&
                 <Routes>
-                    <Route path="/home" element={<Home/>}/>
+                    <Route path="/formpacient" element={<FormPacient/>}/>
                 </Routes>
             }
 

@@ -8,17 +8,16 @@ import br.edu.ifsp.sysodonto.model.Patient;
 import br.edu.ifsp.sysodonto.model.User;
 import br.edu.ifsp.sysodonto.service.PatientService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 @Controller
@@ -52,9 +51,9 @@ public class PatientController {
     }
 
     @PostMapping
-    public String createPatient(@ModelAttribute("patient") Patient patient,
-                                Authentication authentication,
-                                RedirectAttributes redirectAttributes) {
+    public ResponseEntity<Object> createPatient(@RequestBody Patient patient,
+                                                Authentication authentication
+    ) {
 
         try {
             User loggedUser = (User) authentication.getPrincipal();
@@ -64,30 +63,34 @@ public class PatientController {
 
             patientService.createPatient(patient);
 
-            redirectAttributes.addFlashAttribute("success", "Paciente cadastrado com sucesso!");
-            return "redirect:/view/patients";
+            return ResponseEntity.ok().body(Map.of(
+                    "message", "Paciente criado com sucesso!"
+            ));
 
         } catch (InvalidCpfException | CpfAlreadyUsedException |
                  InvalidTelephoneException | TelephoneAlreadyUsedException e) {
 
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/view/patients/new";
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                    "error", "Erro na ação solicitada."
+            ));
 
         } catch (ExecutionException | InterruptedException e) {
-            redirectAttributes.addFlashAttribute("error", "Erro ao salvar paciente: " + e.getMessage());
-            return "redirect:/view/patients/new";
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                    "error", "Erro na ação solicitada."
+            ));
 
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Erro inesperado ao salvar paciente.");
-            return "redirect:/view/patients/new";
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                    "error", "Erro na ação solicitada."
+            ));
         }
     }
-    
+
     @GetMapping("/update/{id}")
-    public String showEditForm(@PathVariable("id") String id, 
-                              Model model, 
-                              Authentication authentication,
-                              RedirectAttributes redirectAttributes) {
+    public String showEditForm(@PathVariable("id") String id,
+                               Model model,
+                               Authentication authentication,
+                               RedirectAttributes redirectAttributes) {
         try {
             User loggedUser = (User) authentication.getPrincipal();
             String userId = loggedUser.getId();
@@ -112,12 +115,12 @@ public class PatientController {
             return "redirect:/view/patients";
         }
     }
-    
+
     @PostMapping("/update/{id}")
     public String updatePatient(@PathVariable("id") String id,
-                               @ModelAttribute("patient") Patient patient,
-                               Authentication authentication,
-                               RedirectAttributes redirectAttributes) {
+                                @ModelAttribute("patient") Patient patient,
+                                Authentication authentication,
+                                RedirectAttributes redirectAttributes) {
 
         try {
             User loggedUser = (User) authentication.getPrincipal();

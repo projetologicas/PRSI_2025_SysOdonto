@@ -1,40 +1,46 @@
 package br.edu.ifsp.sysodonto.model;
 
-import java.util.Date;
-
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
+
+import java.util.Date;
 
 @Getter
 @Setter
 public class Patient {
 
-	private String id;
-	private String userId;
-	private String name;
-	private String picture;
-	private String cpf;
-	private String telephone;
+    private String id;
 
-	@DateTimeFormat(pattern = "yyyy-MM-dd")
-	private Date birthDate;
+    private String userId;
+    @NotBlank
+    private String name;
+    @NotBlank
+    private String cpf;
 
-	@DateTimeFormat(pattern = "yyyy-MM-dd")
-	private Date startTreatmentDate;
+    private String picture;
+    private String telephone;
 
-	private String observations;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date birthDate;
 
-	public Patient() {}
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date startTreatmentDate;
 
-	public Patient(String userId, String name, String picture, String cpf, String telephone, Date birthDate, Date startTreatmentDate, String observations) {
-		this.userId = userId;
-		this.name = name;
-		this.picture = picture;
-		this.cpf = cpf;
-		this.telephone = telephone;
-		this.birthDate = birthDate;
-		this.startTreatmentDate = startTreatmentDate;
-		this.observations = observations;
-	}
+    private String observations;
+
+    public Patient() {
+    }
+
+    public Patient(String userId, String name, String picture, String cpf, String telephone, Date birthDate, Date startTreatmentDate, String observations) {
+        this.userId = userId;
+        this.name = name;
+        this.picture = picture;
+        this.cpf = cpf;
+        this.telephone = telephone;
+        this.birthDate = birthDate;
+        this.startTreatmentDate = startTreatmentDate;
+        this.observations = observations;
+    }
 }
