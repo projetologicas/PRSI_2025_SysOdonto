@@ -3,15 +3,22 @@ import {Card} from "primereact/card";
 import {FloatLabel} from "primereact/floatlabel";
 import {InputText} from "primereact/inputtext";
 import {useForm} from "react-hook-form";
-import type {UserAuth} from "../types/user";
-import {defaultUserAuthValues, userAuthZodSchema} from "../features/user-features.ts";
+import {
+    defaultUserAuthValues,
+    userAuthZodSchema,
+    useStoreLoggedUser,
+    useStoreToken
+} from "../features/user-features.ts";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {Button} from "primereact/button";
 import {Message} from "primereact/message";
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import {IconDental, IconLogin} from "@tabler/icons-react";
 import {Toast} from "primereact/toast";
 import {useRef} from 'react';
+import type {UserAuth} from "../types/user";
+import Cookies from "js-cookie";
+
 
 export function Login() {
 
@@ -21,6 +28,9 @@ export function Login() {
     });
 
     const toast = useRef<Toast>(null);
+    const {setUser} = useStoreLoggedUser();
+    const {setToken} = useStoreToken();
+    const navigate = useNavigate();
 
 
     const header = (
@@ -43,22 +53,20 @@ export function Login() {
         fetch("http://localhost:8000/view/auth/login", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
-            body: JSON.stringify(dados)
+            body: JSON.stringify(dados),
+            credentials: "include"
         })
             .then(async res => {
                 const data = await res.json();
                 if (res.ok) {
-                    toast.current?.show({
-                        severity: 'success',
-                        summary: 'Sucesso',
-                        detail: data.message,
-                        life: 3000
-                    });
+                    setUser(data.loggedUser)
+                    setToken(Cookies.get("jwt") as string)
+                    navigate("/home")
                 } else {
                     toast.current?.show({
                         severity: 'error',
                         summary: 'Erro',
-                        detail: data.error || 'Erro inesperado.',
+                        detail: data.error || 'Erro na ação solicitada.',
                         life: 4000
                     });
                 }
@@ -72,7 +80,6 @@ export function Login() {
                 });
             });
     };
-
 
     return (
 

@@ -21,6 +21,23 @@ html, body {
     background-attachment: fixed;
 }
 
+.bg-orange {
+    background-color: #ff5702 !important;
+}
+
+.bg-green {
+    background-color: #00ff15 !important;
+}
+.bg-red {
+    background-color: #ff0000 !important;
+}
+.bg-yellow {
+    background-color: #ffde00 !important;
+}
+.bg-blue {
+    background-color: #005aff !important;
+}
+
 .header-container {
     background-color: darkslategrey;
     padding: 1rem;
