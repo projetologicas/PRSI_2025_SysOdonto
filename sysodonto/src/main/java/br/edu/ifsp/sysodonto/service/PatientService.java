@@ -58,6 +58,24 @@ public class PatientService {
             throw new PatientNotFoundException("Paciente não encontrado");
         }
 
+        if (!validationService.isValidCPF(patient.getCpf())) {
+            throw new InvalidCpfException("CPF inválido");
+        }
+
+        Optional<Patient> patientWithSameCpf = patientRepository.findByCpf(patient.getCpf());
+        if (patientWithSameCpf.isPresent() && !patientWithSameCpf.get().getId().equals(id)) {
+            throw new CpfAlreadyUsedException("CPF já cadastrado em outro paciente");
+        }
+
+        if (!validationService.isValidPhone(patient.getTelephone())) {
+            throw new InvalidTelephoneException("Telefone inválido");
+        }
+
+        Optional<Patient> patientWithSamePhone = patientRepository.findByTelephone(patient.getTelephone());
+        if (patientWithSamePhone.isPresent() && !patientWithSamePhone.get().getId().equals(id)) {
+            throw new TelephoneAlreadyUsedException("Telefone já cadastrado em outro paciente");
+        }
+
         patient.setId(id);
         return patientRepository.save(patient);
     }

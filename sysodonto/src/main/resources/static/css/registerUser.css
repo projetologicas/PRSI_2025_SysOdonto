@@ -159,14 +159,11 @@ body {
     justify-content: center;
     margin: 0 auto 1rem;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.3s ease;	
     overflow: hidden;
-}
-
-.profile-picture-placeholder:hover {
-    border-color: var(--secondary-color);
-    background: #e3f2fd;
-    transform: scale(1.05);
+    background-size: cover;
+    background-position: center; 
+    background-repeat: no-repeat; 
 }
 
 .profile-picture-placeholder i {
