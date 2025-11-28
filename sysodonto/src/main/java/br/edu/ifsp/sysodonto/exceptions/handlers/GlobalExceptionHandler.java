@@ -12,7 +12,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<RestError> handleIllegalArgument(IllegalArgumentException ex,
-                                                           HttpServletRequest request){
+                                                           HttpServletRequest request) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(RestError.of(
                         HttpStatus.BAD_REQUEST,
@@ -20,16 +20,5 @@ public class GlobalExceptionHandler {
                         request.getRequestURI()
                 ));
     }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<RestError> handleUnexpected(Exception ex,
-                                                      HttpServletRequest request) {
-        ex.printStackTrace();
-
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(RestError.of(HttpStatus.INTERNAL_SERVER_ERROR,
-                        "Erro interno. Tente novamente mais tarde. Se o erro persistir, contate o administrador",
-                        request.getRequestURI()));
-    }
-
 }
+

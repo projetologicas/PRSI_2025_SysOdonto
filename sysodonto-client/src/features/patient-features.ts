@@ -15,7 +15,7 @@ export const patientZodSchema = z.object({
     name: z.string().nonempty("O nome é obrigatório"),
     cpf: z.string().nonempty("O cpf é obrigatório"),
     picture: z.string().optional(),
-    telephone: z.string().optional(),
+    telephone: z.string().nonempty("O telefone é obrigatório"),
     birthDate: z.date().optional(),
     startTreatmentDate: z.date().optional(),
     observations: z.string().optional()

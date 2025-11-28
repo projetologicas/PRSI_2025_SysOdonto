@@ -1,14 +1,9 @@
 package br.edu.ifsp.sysodonto.controller;
 
-import br.edu.ifsp.sysodonto.exceptions.CpfAlreadyUsedException;
-import br.edu.ifsp.sysodonto.exceptions.InvalidCpfException;
-import br.edu.ifsp.sysodonto.exceptions.InvalidTelephoneException;
-import br.edu.ifsp.sysodonto.exceptions.TelephoneAlreadyUsedException;
 import br.edu.ifsp.sysodonto.model.Patient;
 import br.edu.ifsp.sysodonto.model.User;
 import br.edu.ifsp.sysodonto.service.PatientService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -28,19 +23,18 @@ public class PatientController {
     private PatientService patientService;
 
     @GetMapping
-    public String listPatients(Model model, Authentication authentication) {
+    public ResponseEntity<Map<String, List<Patient>>> listPatients(Authentication authentication) throws ExecutionException, InterruptedException {
         try {
             User loggedUser = (User) authentication.getPrincipal();
             String userId = loggedUser.getId();
 
             List<Patient> patients = patientService.getPatientsByUserId(userId);
 
-            model.addAttribute("patients", patients);
-            return "patients/list";
-
+            return ResponseEntity.ok().body(Map.of(
+                    "patients", patients
+            ));
         } catch (ExecutionException | InterruptedException e) {
-            model.addAttribute("error", "Erro ao carregar pacientes: " + e.getMessage());
-            return "patients/list";
+            throw e;
         }
     }
 
@@ -53,7 +47,7 @@ public class PatientController {
     @PostMapping
     public ResponseEntity<Object> createPatient(@RequestBody Patient patient,
                                                 Authentication authentication
-    ) {
+    ) throws ExecutionException, InterruptedException {
 
         try {
             User loggedUser = (User) authentication.getPrincipal();
@@ -67,22 +61,8 @@ public class PatientController {
                     "message", "Paciente criado com sucesso!"
             ));
 
-        } catch (InvalidCpfException | CpfAlreadyUsedException |
-                 InvalidTelephoneException | TelephoneAlreadyUsedException e) {
-
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
-                    "error", "Erro na ação solicitada."
-            ));
-
         } catch (ExecutionException | InterruptedException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
-                    "error", "Erro na ação solicitada."
-            ));
-
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
-                    "error", "Erro na ação solicitada."
-            ));
+            throw e;
         }
     }
 

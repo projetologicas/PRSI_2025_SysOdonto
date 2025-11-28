@@ -3,6 +3,7 @@ import Login from "./app/Login.tsx";
 import {Register} from "./app/Register.tsx";
 import {FormPacient} from "./app/FormPacient.tsx";
 import {useStoreToken} from "./features/user-features.ts";
+import {FormConsultation} from "./app/FormConsultation.tsx";
 
 function App() {
     const {token} = useStoreToken();
@@ -17,6 +18,7 @@ function App() {
             {token &&
                 <Routes>
                     <Route path="/formpacient" element={<FormPacient/>}/>
+                    <Route path="/formconsultation" element={<FormConsultation/>}/>
                 </Routes>
             }
 

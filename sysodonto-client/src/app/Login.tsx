@@ -61,7 +61,7 @@ export function Login() {
                 if (res.ok) {
                     setUser(data.loggedUser)
                     setToken(Cookies.get("jwt") as string)
-                    navigate("/formpacient")
+                    navigate("/formconsultation")
                 } else {
                     toast.current?.show({
                         severity: 'error',

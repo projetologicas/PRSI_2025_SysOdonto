@@ -1,10 +1,11 @@
 package br.edu.ifsp.sysodonto.model;
 
-import java.util.Date;
-
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
+
+import java.util.Date;
 
 @Getter
 @Setter
@@ -12,12 +13,17 @@ public class Consultation {
 
     private String id;
     private String userId;
+
+    @NotBlank
     private String patientId;
 
+    @NotBlank
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private Date dateTime;
 
+    @NotBlank
     private String patientName;
+
     private String observations;
 
     public Consultation() {}

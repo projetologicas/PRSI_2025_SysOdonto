@@ -1,7 +1,7 @@
 import {Card} from "primereact/card";
 import {Button} from "primereact/button";
 import {IconDeviceFloppy, IconPlus, IconReplace, IconX} from "@tabler/icons-react";
-import {useRef, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {InputText} from "primereact/inputtext";
 import {FloatLabel} from "primereact/floatlabel";
 import {InputTextarea} from "primereact/inputtextarea";
@@ -13,13 +13,15 @@ import {defaultPatientValues, patientZodSchema} from "../features/patient-featur
 import {zodResolver} from "@hookform/resolvers/zod";
 import {Message} from "primereact/message";
 import {Toast} from "primereact/toast";
+import {InputMask} from "primereact/inputmask";
+import {useNavigate} from "react-router-dom";
 
 
 //Implementar posteriormente os botoes de salvar e cancelar para voltar para Home
 export function FormPacient() {
 
     const [previewImage, setPreviewImage] = useState<string | null>(null);
-//    const navigate = useNavigate();
+    const navigate = useNavigate();
     const {token} = useStoreToken();
     const toast = useRef<Toast>(null);
 
@@ -44,6 +46,17 @@ export function FormPacient() {
     };
 
 
+    useEffect(() => {
+        if (errors.name || errors.cpf || errors.telephone) {
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Erro',
+                detail: errors.name?.message || errors.cpf?.message || errors.telephone?.message,
+                life: 4000
+            });
+        }
+    }, [errors])
+
     const onSubmit = (dados: PatientRequest) => {
         fetch("http://localhost:8000/view/patients", {
             method: "POST",
@@ -55,18 +68,11 @@ export function FormPacient() {
         })
             .then(async res => {
                 const data = await res.json();
-                if (res.ok) {
-                    toast.current?.show({
-                        severity: 'success',
-                        summary: 'Sucesso',
-                        detail: data.message,
-                        life: 3000
-                    });
-                } else {
+                if (!res.ok) {
                     toast.current?.show({
                         severity: 'error',
                         summary: 'Erro',
-                        detail: data.error || 'Erro na ação solicitada.',
+                        detail: data.message || 'Erro na ação solicitada.',
                         life: 4000
                     });
                 }
@@ -152,30 +158,34 @@ export function FormPacient() {
                             </div>
                         </div>
                         <div className="flex flex-column gap-1 justify-content-center align-items-center w-full">
-                            <FloatLabel className="w-full ml-5">
-                                <InputText id="name" className="w-full"
-                                           placeholder="digite seu nome"  {...register('name')} />
-                                <label htmlFor="name">Nome</label>
-                            </FloatLabel>
-                            {errors.name && <Message severity="error" text={errors.name.message}/>}
+
+                            <div className="flex flex-column w-full ml-5">
+                                <FloatLabel className="w-full">
+                                    <InputText id="name" className="w-full"
+                                               placeholder="digite seu nome" {...register('name')} />
+                                    <label htmlFor="name">Nome</label>
+                                </FloatLabel>
+                            </div>
+
 
                             <div
                                 className="ml-5 mt-5 flex flex-row gap-3 align-items-center justify-content-center w-full">
-                                <FloatLabel className="w-7">
-                                    <InputText id="cpf" className="w-full"
-                                               placeholder="xxx.xxx.xxx.xx"  {...register('cpf')} />
-                                    <label htmlFor="cpf">CPF</label>
-                                </FloatLabel>
-                                {errors.cpf && <Message severity="error" text={errors.cpf.message}/>}
+                                <div className="flex flex-column w-full ">
+                                    <FloatLabel className="w-full">
+                                        <InputMask id="cpf" className="w-full"
+                                                   mask={'999.999.999-99'} {...register('cpf')} />
+                                        <label htmlFor="cpf">CPF</label>
+                                    </FloatLabel>
+                                </div>
 
-
-                                <FloatLabel className="w-7">
-                                    <InputText id="telephone" keyfilter="pnum" className="w-full "
-                                               placeholder="xx xxxxx-xxxx" {...register('telephone')} />
-                                    <label htmlFor="telephone">Telefone</label>
-                                </FloatLabel>
-                                {errors.telephone && <Message severity="error" text={errors.telephone.message}/>}
-
+                                <div className="flex flex-column w-full ml-5">
+                                    <FloatLabel className="w-full">
+                                        <InputMask id="telephone" keyfilter="pnum" className="w-full "
+                                                   mask={'99 99999-9999'}
+                                                   {...register('telephone')} />
+                                        <label htmlFor="telephone">Telefone</label>
+                                    </FloatLabel>
+                                </div>
                             </div>
                             <div
                                 className="flex flex-row gap-3 ml-5 mt-5 align-items-center justify-content-center w-full">
@@ -227,9 +237,12 @@ export function FormPacient() {
 
                     <div className="flex flex-row gap-3 mt-5 justify-content-end align-items-end">
                         <Button
-                            type="submit"
+                            type="button"
                             label="Cancelar"
                             severity="danger"
+                            onClick={() => {
+                                navigate("/")
+                            }}
                             icon={<IconDeviceFloppy size={18}/>}
                             className="w-2 mt-3 flex align-items-center justify-content-center"
                         />
