@@ -3,6 +3,8 @@ package br.edu.ifsp.sysodonto.controller;
 import br.edu.ifsp.sysodonto.model.Patient;
 import br.edu.ifsp.sysodonto.model.User;
 import br.edu.ifsp.sysodonto.service.PatientService;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -37,6 +39,26 @@ public class PatientController {
             throw e;
         }
     }
+    
+    @GetMapping("/{id}")
+    public ResponseEntity<Patient> getPatient(@PathVariable("id") String id,
+                                             Authentication authentication) throws ExecutionException, InterruptedException {
+        try {
+            User loggedUser = (User) authentication.getPrincipal();
+            String userId = loggedUser.getId();
+
+            Patient patient = patientService.getPatientById(id)
+                    .orElseThrow(() -> new RuntimeException("Paciente não encontrado"));
+
+            if (!patient.getUserId().equals(userId)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+
+            return ResponseEntity.ok(patient);
+        } catch (ExecutionException | InterruptedException e) {
+            throw e;
+        }
+    }
 
     @GetMapping("/new")
     public String showCreateForm(Model model) {
@@ -67,10 +89,8 @@ public class PatientController {
     }
 
     @GetMapping("/update/{id}")
-    public String showEditForm(@PathVariable("id") String id,
-                               Model model,
-                               Authentication authentication,
-                               RedirectAttributes redirectAttributes) {
+    public ResponseEntity<Patient> getPatientForUpdate(@PathVariable("id") String id,
+                                                       Authentication authentication) {
         try {
             User loggedUser = (User) authentication.getPrincipal();
             String userId = loggedUser.getId();
@@ -79,58 +99,15 @@ public class PatientController {
                     .orElseThrow(() -> new RuntimeException("Paciente não encontrado"));
 
             if (!patient.getUserId().equals(userId)) {
-                redirectAttributes.addFlashAttribute("error", "Acesso negado.");
-                return "redirect:/view/patients";
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
 
-            model.addAttribute("patient", patient);
-            model.addAttribute("isEdit", true);
-            return "patients/form";
+            return ResponseEntity.ok(patient);
 
         } catch (ExecutionException | InterruptedException e) {
-            redirectAttributes.addFlashAttribute("error", "Erro ao carregar paciente: " + e.getMessage());
-            return "redirect:/view/patients";
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         } catch (RuntimeException e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/view/patients";
-        }
-    }
-
-    @PostMapping("/update/{id}")
-    public String updatePatient(@PathVariable("id") String id,
-                                @ModelAttribute("patient") Patient patient,
-                                Authentication authentication,
-                                RedirectAttributes redirectAttributes) {
-
-        try {
-            User loggedUser = (User) authentication.getPrincipal();
-            String userId = loggedUser.getId();
-
-            Patient existingPatient = patientService.getPatientById(id)
-                    .orElseThrow(() -> new RuntimeException("Paciente não encontrado"));
-
-            if (!existingPatient.getUserId().equals(userId)) {
-                redirectAttributes.addFlashAttribute("error", "Acesso negado.");
-                return "redirect:/view/patients";
-            }
-
-            patient.setId(id);
-            patient.setUserId(userId);
-
-            patientService.updatePatient(id, patient);
-
-            redirectAttributes.addFlashAttribute("success", "Paciente atualizado com sucesso!");
-            return "redirect:/view/patients";
-
-        } catch (ExecutionException | InterruptedException e) {
-            redirectAttributes.addFlashAttribute("error", "Erro ao atualizar paciente: " + e.getMessage());
-            return "redirect:/view/patients/edit/" + id;
-        } catch (RuntimeException e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/view/patients";
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Erro inesperado ao atualizar paciente.");
-            return "redirect:/view/patients/edit/" + id;
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
 }

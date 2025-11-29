@@ -14,23 +14,65 @@ import {zodResolver} from "@hookform/resolvers/zod";
 import {Message} from "primereact/message";
 import {Toast} from "primereact/toast";
 import {InputMask} from "primereact/inputmask";
-import {useNavigate} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 
-
-//Implementar posteriormente os botoes de salvar e cancelar para voltar para Home
 export function FormPacient() {
-
+    const { id } = useParams();
+    const isEdit = Boolean(id);
     const [previewImage, setPreviewImage] = useState<string | null>(null);
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const {token} = useStoreToken();
     const toast = useRef<Toast>(null);
 
-
-    const {handleSubmit, setValue, register, formState: {errors}, control} = useForm<PatientRequest>({
+    const {handleSubmit, setValue, register, formState: {errors}, control, reset} = useForm<PatientRequest>({
         defaultValues: defaultPatientValues,
         resolver: zodResolver(patientZodSchema)
-    })
+    });
 
+    useEffect(() => {
+        if (isEdit && token) {
+            setLoading(true);
+            fetch(`http://localhost:8000/view/patients/${id}`, {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            })
+            .then(async res => {
+                if (res.ok) {
+                    const patient = await res.json();
+                    reset({
+                        name: patient.name || '',
+                        cpf: patient.cpf || '',
+                        telephone: patient.telephone || '',
+                        birthDate: patient.birthDate ? new Date(patient.birthDate) : undefined,
+                        startTreatmentDate: patient.startTreatmentDate ? new Date(patient.startTreatmentDate) : undefined,
+                        observations: patient.observations || '',
+                        picture: patient.picture || ''
+                    });
+
+                    if (patient.picture) {
+                        setPreviewImage(patient.picture);
+                    }
+                } else {
+                    throw new Error('Erro ao carregar paciente');
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao carregar paciente:', error);
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Erro',
+                    detail: 'Erro ao carregar dados do paciente.',
+                    life: 4000
+                });
+            })
+            .finally(() => {
+                setLoading(false);
+            });
+        }
+    }, [isEdit, id, token, reset]);
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -45,7 +87,6 @@ export function FormPacient() {
         }
     };
 
-
     useEffect(() => {
         if (errors.name || errors.cpf || errors.telephone) {
             toast.current?.show({
@@ -55,61 +96,71 @@ export function FormPacient() {
                 life: 4000
             });
         }
-    }, [errors])
+    }, [errors]);
 
     const onSubmit = (dados: PatientRequest) => {
-        fetch("http://localhost:8000/view/patients", {
-            method: "POST",
+        setLoading(true);
+
+        const url = isEdit
+            ? `http://localhost:8000/view/patients/update/${id}`
+            : "http://localhost:8000/view/patients";
+
+        const method = isEdit ? "PUT" : "POST";
+
+        fetch(url, {
+            method: method,
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${token}`
             },
             body: JSON.stringify(dados)
         })
-            .then(async res => {
-                const data = await res.json();
-                if (!res.ok) {
-                    toast.current?.show({
-                        severity: 'error',
-                        summary: 'Erro',
-                        detail: data.message || 'Erro na ação solicitada.',
-                        life: 4000
-                    });
-                } else {
-                    toast.current?.show({
-                        severity: 'success',
-                        summary: 'Sucesso',
-                        detail: 'Paciente cadastrado com sucesso!',
-                        life: 4000
-                    });
+        .then(async res => {
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(data.message || 'Erro na ação solicitada.');
+            }
 
-                    setTimeout(() => {
-                        navigate("/");
-                    }, 1500);
-                }
-            })
-            .catch(() => {
-                toast.current?.show({
-                    severity: 'error',
-                    summary: 'Erro',
-                    detail: 'Falha na comunicação com o servidor.',
-                    life: 4000
-                });
+            toast.current?.show({
+                severity: 'success',
+                summary: 'Sucesso',
+                detail: isEdit ? 'Paciente atualizado com sucesso!' : 'Paciente cadastrado com sucesso!',
+                life: 4000
             });
 
+            setTimeout(() => {
+                navigate("/patients");
+            }, 1500);
+        })
+        .catch((error) => {
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Erro',
+                detail: error.message || 'Falha na comunicação com o servidor.',
+                life: 4000
+            });
+        })
+        .finally(() => {
+            setLoading(false);
+        });
+    };
 
-    }
+    const header = (
+        <div className="flex align-items-center justify-content-center">
+            <h2 className="text-2xl font-bold text-900 m-0">
+                {isEdit ? 'Editar Paciente' : 'Cadastrar Paciente'}
+            </h2>
+        </div>
+    );
 
     return (
         <div className="flex justify-content-center align-items-center w-full"
-             style={{backgroundColor: '#ccfaf7', height: '100vh'}}>
+             style={{backgroundColor: '#ccfaf7', minHeight: '100vh', padding: '2rem 0'}}>
             <Toast ref={toast}/>
-            <Card
-                className="w-8"
-            >
+            <Card className="w-10 lg:w-6" header={header}>
                 <form className="flex flex-column" onSubmit={handleSubmit(onSubmit)}>
-                    <div className="flex flex-row w-full">
-                        <div className="flex flex-column align-items-center">
+                    <div className="flex flex-column md:flex-row w-full gap-5">
+                        <div className="flex flex-column align-items-center w-full md:w-4">
                             {previewImage ? (
                                 <img
                                     src={previewImage}
@@ -147,13 +198,13 @@ export function FormPacient() {
                                 onChange={handleImageChange}
                             />
 
-
                             <div className="flex justify-content-center mt-2 gap-1">
                                 <Button
                                     type="button"
                                     severity="success"
                                     icon={!previewImage ? <IconPlus size={18}/> : <IconReplace size={18}/>}
                                     onClick={() => document.getElementById('fileInput')?.click()}
+                                    disabled={loading}
                                 />
                                 {previewImage && (
                                     <Button
@@ -164,104 +215,137 @@ export function FormPacient() {
                                             setPreviewImage(null);
                                             setValue('picture', '');
                                         }}
+                                        disabled={loading}
                                     />
                                 )}
                             </div>
                         </div>
-                        <div className="flex flex-column gap-1 justify-content-center align-items-center w-full">
 
-                            <div className="flex flex-column w-full ml-5">
-                                <FloatLabel className="w-full">
-                                    <InputText id="name" className="w-full"
-                                               placeholder="digite seu nome" {...register('name')} />
+                        <div className="flex flex-column gap-3 w-full md:w-8">
+                            <div className="flex flex-column">
+                                <FloatLabel>
+                                    <InputText
+                                        id="name"
+                                        className="w-full"
+                                        placeholder="Digite o nome"
+                                        {...register('name')}
+                                        disabled={loading}
+                                    />
                                     <label htmlFor="name">Nome</label>
                                 </FloatLabel>
+                                {errors.name && <Message severity="error" text={errors.name.message} className="mt-1"/>}
                             </div>
 
-
-                            <div
-                                className="ml-5 mt-5 flex flex-row gap-3 align-items-center justify-content-center w-full">
-                                <div className="flex flex-column w-full ">
-                                    <FloatLabel className="w-full">
-                                        <InputMask id="cpf" className="w-full"
-                                                   mask={'999.999.999-99'} {...register('cpf')} />
+                            <div className="flex flex-column md:flex-row gap-3">
+                                <div className="flex flex-column w-full">
+                                    <FloatLabel>
+                                        <InputMask
+                                            id="cpf"
+                                            className="w-full"
+                                            mask={'999.999.999-99'}
+                                            {...register('cpf')}
+                                            disabled={loading}
+                                        />
                                         <label htmlFor="cpf">CPF</label>
                                     </FloatLabel>
+                                    {errors.cpf && <Message severity="error" text={errors.cpf.message} className="mt-1"/>}
                                 </div>
 
-                                <div className="flex flex-column w-full ml-5">
-                                    <FloatLabel className="w-full">
-                                        <InputMask id="telephone" keyfilter="pnum" className="w-full "
-                                                   mask={'99 99999-9999'}
-                                                   {...register('telephone')} />
+                                <div className="flex flex-column w-full">
+                                    <FloatLabel>
+                                        <InputMask
+                                            id="telephone"
+                                            keyfilter="pnum"
+                                            className="w-full"
+                                            mask={'99 99999-9999'}
+                                            {...register('telephone')}
+                                            disabled={loading}
+                                        />
                                         <label htmlFor="telephone">Telefone</label>
                                     </FloatLabel>
+                                    {errors.telephone && <Message severity="error" text={errors.telephone.message} className="mt-1"/>}
                                 </div>
                             </div>
-                            <div
-                                className="flex flex-row gap-3 ml-5 mt-5 align-items-center justify-content-center w-full">
-                                <FloatLabel className="w-8">
-                                    <Controller
-                                        name="birthDate"
-                                        control={control}
-                                        render={({field}) => (
-                                            <Calendar
-                                                id="birthDay"
-                                                className="w-full"
-                                                value={field.value}
-                                                onChange={(e) => field.onChange(e.value)}
-                                            />
-                                        )}
-                                    />
-                                    <label htmlFor="birthDay">Data de Nascimento</label>
-                                </FloatLabel>
-                                {errors.birthDate && <Message severity="error" text={errors.birthDate.message}/>}
 
+                            <div className="flex flex-column md:flex-row gap-3">
+                                <div className="flex flex-column w-full">
+                                    <FloatLabel>
+                                        <Controller
+                                            name="birthDate"
+                                            control={control}
+                                            render={({field}) => (
+                                                <Calendar
+                                                    id="birthDate"
+                                                    className="w-full"
+                                                    value={field.value}
+                                                    onChange={(e) => field.onChange(e.value)}
+                                                    dateFormat="dd/mm/yy"
+                                                    showIcon
+                                                    disabled={loading}
+                                                />
+                                            )}
+                                        />
+                                        <label htmlFor="birthDate">Data de Nascimento</label>
+                                    </FloatLabel>
+                                    {errors.birthDate && <Message severity="error" text={errors.birthDate.message} className="mt-1"/>}
+                                </div>
 
-                                <FloatLabel className="w-8">
-
-                                    <Controller
-                                        name="startTreatmentDate"
-                                        control={control}
-                                        render={({field}) => (
-                                            <Calendar
-                                                id="startTreatmentDate"
-                                                className="w-full"
-                                                value={field.value}
-                                                onChange={(e) => field.onChange(e.value)}
-                                            />
-                                        )}
-                                    />
-                                    <label htmlFor="startTreatmentDate">Inicio do Tratamento</label>
-                                </FloatLabel>
-                                {errors.startTreatmentDate &&
-                                    <Message severity="error" text={errors.startTreatmentDate.message}/>}
-
+                                <div className="flex flex-column w-full">
+                                    <FloatLabel>
+                                        <Controller
+                                            name="startTreatmentDate"
+                                            control={control}
+                                            render={({field}) => (
+                                                <Calendar
+                                                    id="startTreatmentDate"
+                                                    className="w-full"
+                                                    value={field.value}
+                                                    onChange={(e) => field.onChange(e.value)}
+                                                    dateFormat="dd/mm/yy"
+                                                    showIcon
+                                                    disabled={loading}
+                                                />
+                                            )}
+                                        />
+                                        <label htmlFor="startTreatmentDate">Início do Tratamento</label>
+                                    </FloatLabel>
+                                    {errors.startTreatmentDate && <Message severity="error" text={errors.startTreatmentDate.message} className="mt-1"/>}
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <FloatLabel className="mt-5">
-                        <InputTextarea id="observations" className="w-full" {...register('observations')}/>
-                        <label htmlFor="observations">Observação</label>
-                    </FloatLabel>
-                    {errors.observations && <Message severity="error" text={errors.observations.message}/>}
 
-                    <div className="flex flex-row gap-3 mt-5 justify-content-end align-items-end">
+                    <div className="flex flex-column mt-4">
+                        <FloatLabel>
+                            <InputTextarea
+                                id="observations"
+                                className="w-full"
+                                rows={4}
+                                {...register('observations')}
+                                disabled={loading}
+                                placeholder="Digite observações sobre o paciente"
+                            />
+                            <label htmlFor="observations">Observações</label>
+                        </FloatLabel>
+                        {errors.observations && <Message severity="error" text={errors.observations.message} className="mt-1"/>}
+                    </div>
+
+                    <div className="flex flex-row gap-3 mt-5 justify-content-end">
                         <Button
                             type="button"
                             label="Cancelar"
-                            severity="danger"
-                            onClick={() => {
-                                navigate("/")
-                            }}
+                            severity="secondary"
+                            onClick={() => navigate("/patients")}
                             icon={<IconDeviceFloppy size={18}/>}
-                            className="w-2 mt-3 flex align-items-center justify-content-center"
+                            className="w-3"
+                            disabled={loading}
                         />
                         <Button
                             type="submit"
-                            label="Salvar"
+                            label={isEdit ? "Atualizar" : "Salvar"}
                             icon={<IconDeviceFloppy size={18}/>}
-                            className="w-2 mt-3 flex align-items-center justify-content-center"
+                            className="w-3"
+                            loading={loading}
                         />
                     </div>
                 </form>
