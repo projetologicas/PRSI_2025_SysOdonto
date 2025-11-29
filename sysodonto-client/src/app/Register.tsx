@@ -51,7 +51,7 @@ export function Register() {
 
     const footer = (
         <div className="text-center mt-1 text-500">
-            Ja possui cadastro? <Link to="/home" className="text-primary font-bold">Entrar</Link>
+            Ja possui cadastro? <Link to="/" className="text-primary font-bold">Entrar</Link>
         </div>
     )
 

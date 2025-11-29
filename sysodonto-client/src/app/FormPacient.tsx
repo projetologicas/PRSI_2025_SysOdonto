@@ -75,6 +75,17 @@ export function FormPacient() {
                         detail: data.message || 'Erro na ação solicitada.',
                         life: 4000
                     });
+                } else {
+                    toast.current?.show({
+                        severity: 'success',
+                        summary: 'Sucesso',
+                        detail: 'Paciente cadastrado com sucesso!',
+                        life: 4000
+                    });
+
+                    setTimeout(() => {
+                        navigate("/");
+                    }, 1500);
                 }
             })
             .catch(() => {
