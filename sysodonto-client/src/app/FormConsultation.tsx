@@ -9,28 +9,35 @@ import type {Patient} from "../types/patient";
 import {Controller, useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {Toast} from "primereact/toast";
-import {useMountEffect} from "primereact/hooks";
 import {Dropdown} from "primereact/dropdown";
 import type {ConsultationRequest} from "../types/consultation";
 import {consultationZodSchema, defaultConsultationValues} from "../features/consultation-features.ts";
 import {Calendar} from "primereact/calendar";
-import {useNavigate} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 
-//Implementar posteriormente os botoes de salvar e cancelar para voltar para Home
 export function FormConsultation() {
-
+    const { id } = useParams();
+    const isEdit = Boolean(id);
     const navigate = useNavigate();
     const {token} = useStoreToken();
     const toast = useRef<Toast>(null);
-    const [patients, setPatient] = useState<Patient[]>([]);
+    const [patients, setPatients] = useState<Patient[]>([]);
+    const [loading, setLoading] = useState(false);
 
-    const {handleSubmit, register, formState: {errors}, control} = useForm<ConsultationRequest>({
+    const {handleSubmit, register, formState: {errors}, control, reset} = useForm<ConsultationRequest>({
         defaultValues: defaultConsultationValues,
         resolver: zodResolver(consultationZodSchema)
-    })
+    });
 
+    useEffect(() => {
+        loadPatients();
 
-    const handlePatients = () => {
+        if (isEdit && token) {
+            loadConsultationForEdit();
+        }
+    }, [isEdit, token]);
+
+    const loadPatients = () => {
         fetch("http://localhost:8000/view/patients", {
             method: "GET",
             headers: {
@@ -38,21 +45,62 @@ export function FormConsultation() {
                 "Authorization": `Bearer ${token}`
             }
         })
-            .then(async res => {
-                const data = await res.json();
-                setPatient(data.patients)
-            })
-    }
+        .then(async res => {
+            const data = await res.json();
+            setPatients(data.patients || []);
+        })
+        .catch(error => {
+            console.error('Erro ao carregar pacientes:', error);
+        });
+    };
 
-    useMountEffect(
-        handlePatients,
-    )
+    const loadConsultationForEdit = () => {
+        setLoading(true);
+        fetch(`http://localhost:8000/view/consultations/${id}`, {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+        })
+        .then(async res => {
+            if (res.ok) {
+                const consultation = await res.json();
+                const patient = patients.find(p => p.id === consultation.patientId);
 
+                reset({
+                    patient: patient || null,
+                    dateTime: consultation.dateTime ? new Date(consultation.dateTime) : new Date(),
+                    observations: consultation.observations || ''
+                });
+            } else {
+                throw new Error('Erro ao carregar consulta');
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao carregar consulta:', error);
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Erro',
+                detail: 'Erro ao carregar dados da consulta.',
+                life: 4000
+            });
+        })
+        .finally(() => {
+            setLoading(false);
+        });
+    };
 
     const onSubmit = (dados: ConsultationRequest) => {
+        setLoading(true);
 
-        fetch("http://localhost:8000/view/consultations", {
-            method: "POST",
+        const url = isEdit
+            ? `http://localhost:8000/view/consultations/update/${id}`
+            : "http://localhost:8000/view/consultations";
+
+        const method = isEdit ? "PUT" : "POST";
+
+        fetch(url, {
+            method: method,
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${token}`
@@ -64,27 +112,35 @@ export function FormConsultation() {
                 observations: dados.observations
             }),
         })
-            .then(async res => {
-                const data = await res.json();
-                if (!res.ok) {
-                    toast.current?.show({
-                        severity: 'error',
-                        summary: 'Erro',
-                        detail: data.message || 'Erro na ação solicitada.',
-                        life: 4000
-                    });
-                }
-            })
-            .catch(() => {
-                toast.current?.show({
-                    severity: 'error',
-                    summary: 'Erro',
-                    detail: 'Falha na comunicação com o servidor.',
-                    life: 4000
-                });
+        .then(async res => {
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(data.message || data.error || 'Erro na ação solicitada.');
+            }
+
+            toast.current?.show({
+                severity: 'success',
+                summary: 'Sucesso',
+                detail: isEdit ? 'Consulta atualizada com sucesso!' : 'Consulta cadastrada com sucesso!',
+                life: 4000
             });
 
-    }
+            setTimeout(() => {
+                navigate("/consultations");
+            }, 1500);
+        })
+        .catch((error) => {
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Erro',
+                detail: error.message || 'Falha na comunicação com o servidor.',
+                life: 4000
+            });
+        })
+        .finally(() => {
+            setLoading(false);
+        });
+    };
 
     useEffect(() => {
         if (errors.patient || errors.dateTime) {
@@ -95,20 +151,22 @@ export function FormConsultation() {
                 life: 4000
             });
         }
-    }, [errors])
+    }, [errors]);
 
     const header = (
         <div className="header-container text-center align-items-center justify-content-center w-full h-8rem">
             <div className="flex mt-5 align-items-center justify-content-center">
                 <IconDental size={40} stroke={2}/>
-                <h1 className="text-primary font-bold m-0">Cadastro de Consulta</h1>
+                <h1 className="text-primary font-bold m-0">
+                    {isEdit ? 'Editar Consulta' : 'Cadastro de Consulta'}
+                </h1>
             </div>
         </div>
-    )
+    );
 
     return (
         <div className="flex justify-content-center align-items-center w-full"
-             style={{backgroundColor: '#ccfaf7', height: '100vh'}}>
+             style={{backgroundColor: '#ccfaf7', minHeight: '100vh'}}>
             <Toast ref={toast}/>
             <Card
                 className="w-8"
@@ -126,13 +184,16 @@ export function FormConsultation() {
                                             <Dropdown
                                                 options={patients}
                                                 value={field.value}
-                                                optionLabel="name" filter
+                                                optionLabel="name"
+                                                filter
                                                 className="w-full"
                                                 onChange={(e) => field.onChange(e.value)}
+                                                disabled={loading}
+                                                placeholder="Selecione um paciente"
                                             />
                                         )}
                                     />
-                                    <label htmlFor="patient">Selecione o Paciente</label>
+                                    <label htmlFor="patient">Paciente</label>
                                 </FloatLabel>
                             </div>
 
@@ -150,35 +211,43 @@ export function FormConsultation() {
                                                 dateFormat="dd/mm/yy"
                                                 value={field.value}
                                                 onChange={(e) => field.onChange(e.value)}
+                                                disabled={loading}
                                             />
                                         )}
                                     />
-                                    <label htmlFor="dateTime">Inicio do Tratamento</label>
+                                    <label htmlFor="dateTime">Data e Hora</label>
                                 </FloatLabel>
                             </div>
                         </div>
                     </div>
+
                     <FloatLabel className="mt-5">
-                        <InputTextarea id="observations" className="w-full h-20rem" {...register('observations')}/>
-                        <label htmlFor="observations">Observação</label>
+                        <InputTextarea
+                            id="observations"
+                            className="w-full h-20rem"
+                            {...register('observations')}
+                            disabled={loading}
+                            placeholder="Digite as observações da consulta"
+                        />
+                        <label htmlFor="observations">Observações</label>
                     </FloatLabel>
 
                     <div className="flex flex-row gap-3 mt-5 justify-content-end align-items-end">
                         <Button
                             type="button"
                             label="Cancelar"
-                            severity="danger"
+                            severity="secondary"
                             icon={<IconDeviceFloppy size={18}/>}
-                            onClick={() => {
-                                navigate("/")
-                            }}
-                            className="w-2 mt-3 flex align-items-center justify-content-center"
+                            onClick={() => navigate("/consultations")}
+                            className="w-3"
+                            disabled={loading}
                         />
                         <Button
                             type="submit"
-                            label="Salvar"
+                            label={isEdit ? "Atualizar" : "Salvar"}
                             icon={<IconDeviceFloppy size={18}/>}
-                            className="w-2 mt-3 flex align-items-center justify-content-center"
+                            className="w-3"
+                            loading={loading}
                         />
                     </div>
                 </form>

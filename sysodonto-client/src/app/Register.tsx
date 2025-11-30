@@ -7,10 +7,11 @@ import {Message} from "primereact/message";
 import {Button} from "primereact/button";
 import {useForm} from "react-hook-form";
 import type {UserRegister} from "../types/user"
-import {defaultUserReqisterValues, userRegisterZodSchema, useStoreLoggedUser} from "../features/user-features.ts";
+import {defaultUserReqisterValues, userRegisterZodSchema, useStoreLoggedUser, useStoreToken} from "../features/user-features.ts";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {useRef, useState} from "react";
 import {Toast} from "primereact/toast";
+import Cookies from "js-cookie";
 
 export function Register() {
 
@@ -21,6 +22,7 @@ export function Register() {
 
     const toast = useRef<Toast>(null);
     const {setUser} = useStoreLoggedUser();
+    const {setToken} = useStoreToken();
     const [previewImage, setPreviewImage] = useState<string | null>(null);
     const navigate = useNavigate();
 
@@ -60,19 +62,21 @@ export function Register() {
         fetch("http://localhost:8000/view/auth/register", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
-            body: JSON.stringify(dados)
+            body: JSON.stringify(dados),
+            credentials: "include"
         })
             .then(async res => {
                 const data = await res.json();
                 if (res.ok) {
                     setUser(data.loggedUser)
+                    setToken(Cookies.get("jwt") as string)
                     toast.current?.show({
                         severity: 'success',
                         summary: 'Sucesso',
                         detail: data.message,
                         life: 3000
                     });
-                    navigate("/formpacient")
+                    navigate("/patients")
                 } else {
                     toast.current?.show({
                         severity: 'error',
@@ -90,8 +94,6 @@ export function Register() {
                     life: 4000
                 });
             });
-
-
     }
 
     return (

@@ -2,6 +2,7 @@ package br.edu.ifsp.sysodonto.controller;
 
 import br.edu.ifsp.sysodonto.dto.AuthRequest;
 import br.edu.ifsp.sysodonto.dto.RegisterRequest;
+import br.edu.ifsp.sysodonto.dto.UserResponse;
 import br.edu.ifsp.sysodonto.exceptions.EmailAlreadyUsedException;
 import br.edu.ifsp.sysodonto.model.User;
 import br.edu.ifsp.sysodonto.service.JwtService;
@@ -63,17 +64,30 @@ public class UserLoginController {
 
     @PostMapping("/register")
     @ResponseBody
-    public ResponseEntity<Object> registerUser(@RequestBody RegisterRequest registerRequest) {
+    public ResponseEntity<Object> registerUser(@RequestBody RegisterRequest registerRequest, HttpServletResponse response) {
         try {
             if (!registerRequest.passwordsMatch()) {
                 return ResponseEntity.badRequest().body(Map.of("error", "As senhas não coincidem."));
             }
 
-            ResponseEntity<User> loggedUser = getLoggedUser(userService.registerUser(registerRequest).getEmail());
+            UserResponse userResponse = userService.registerUser(registerRequest);
+            
+            User user = userService.getUserByEmail(userResponse.getEmail())
+                    .orElseThrow(() -> new RuntimeException("Usuário não encontrado após registro"));
+            
+            String token = jwtService.generateToken(user);
+            
+            Cookie cookie = new Cookie("jwt", token);
+            cookie.setHttpOnly(false);
+            cookie.setPath("/");
+            cookie.setMaxAge(60 * 60); 
+            response.addCookie(cookie);
+
             return ResponseEntity.ok(Map.of(
                     "message", "Cadastro realizado com sucesso!",
-                    "loggedUser", loggedUser
+                    "loggedUser", userResponse 
             ));
+
 
         } catch (EmailAlreadyUsedException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", "Este e-mail já está cadastrado."));

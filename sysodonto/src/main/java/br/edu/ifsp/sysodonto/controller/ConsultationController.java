@@ -2,18 +2,22 @@ package br.edu.ifsp.sysodonto.controller;
 
 import br.edu.ifsp.sysodonto.exceptions.ConsultationNotFoundException;
 import br.edu.ifsp.sysodonto.exceptions.ScheduleConflictException;
+import br.edu.ifsp.sysodonto.filters.ConsultationFilter;
 import br.edu.ifsp.sysodonto.model.Consultation;
 import br.edu.ifsp.sysodonto.model.Patient;
 import br.edu.ifsp.sysodonto.model.User;
 import br.edu.ifsp.sysodonto.service.ConsultationService;
 import br.edu.ifsp.sysodonto.service.PatientService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -77,14 +81,112 @@ public class ConsultationController {
 
             consultation.setUserId(userId);
 
-            consultationService.createConsultation(consultation, false);
+            Consultation createdConsultation = consultationService.createConsultation(consultation, false);
 
             return ResponseEntity.ok().body(Map.of(
-                    "consultations", consultation
+                    "message", "Consulta criada com sucesso!",
+                    "consultation", createdConsultation
             ));
 
-        } catch (ScheduleConflictException | ExecutionException | InterruptedException |
-                 ConsultationNotFoundException e) {
+        } catch (ScheduleConflictException | ExecutionException | InterruptedException | ConsultationNotFoundException e) {
+            throw e;
+        }
+    }
+    
+    @GetMapping("/{id}")
+    public ResponseEntity<Consultation> getConsultation(@PathVariable("id") String id,
+                                                       Authentication authentication) throws ExecutionException, InterruptedException {
+        try {
+            User loggedUser = (User) authentication.getPrincipal();
+            String userId = loggedUser.getId();
+
+            Consultation consultation = consultationService.getConsultationById(id)
+                    .orElseThrow(() -> new ConsultationNotFoundException("Consulta não encontrada"));
+
+            if (!consultation.getUserId().equals(userId)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+
+            return ResponseEntity.ok(consultation);
+
+        } catch (ExecutionException | InterruptedException e) {
+            throw e;
+        }
+    }
+    
+    @GetMapping("/update/{id}")
+    public ResponseEntity<Consultation> getConsultationForUpdate(@PathVariable("id") String id,
+                                                                Authentication authentication) {
+        try {
+            User loggedUser = (User) authentication.getPrincipal();
+            String userId = loggedUser.getId();
+
+            Consultation consultation = consultationService.getConsultationById(id)
+                    .orElseThrow(() -> new ConsultationNotFoundException("Consulta não encontrada"));
+
+            if (!consultation.getUserId().equals(userId)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+
+            return ResponseEntity.ok(consultation);
+
+        } catch (ExecutionException | InterruptedException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        } catch (ConsultationNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+    
+    @PutMapping("/update/{id}")
+    public ResponseEntity<Object> updateConsultation(@PathVariable("id") String id,
+                                                    @RequestBody Consultation consultation,
+                                                    Authentication authentication) throws ExecutionException, InterruptedException {
+        try {
+            User loggedUser = (User) authentication.getPrincipal();
+            String userId = loggedUser.getId();
+
+            Consultation existingConsultation = consultationService.getConsultationById(id)
+                    .orElseThrow(() -> new ConsultationNotFoundException("Consulta não encontrada"));
+
+            if (!existingConsultation.getUserId().equals(userId)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+
+            consultation.setId(id);
+            consultation.setUserId(userId);
+
+            Consultation updatedConsultation = consultationService.updateConsultation(id, consultation, true);
+
+            return ResponseEntity.ok().body(Map.of(
+                    "message", "Consulta atualizada com sucesso!",
+                    "consultation", updatedConsultation
+            ));
+
+        } catch (ExecutionException | InterruptedException e) {
+            throw e;
+        } catch (ConsultationNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                    "error", e.getMessage()
+            ));
+        } catch (ScheduleConflictException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of(
+                    "error", e.getMessage()
+            ));
+        }
+    }
+    
+    @PostMapping("/filter")
+    public ResponseEntity<Map<String, List<Consultation>>> filterConsultations(
+            @RequestBody ConsultationFilter filter,
+            Authentication authentication) throws ExecutionException, InterruptedException {
+        try {
+            User loggedUser = (User) authentication.getPrincipal();
+            String userId = loggedUser.getId();
+
+            List<Consultation> consultations = consultationService.getConsultationsByFilter(userId, filter);
+
+            return ResponseEntity.ok().body(Map.of("consultations", consultations));
+        } catch (ExecutionException | InterruptedException e) {
             throw e;
         }
     }

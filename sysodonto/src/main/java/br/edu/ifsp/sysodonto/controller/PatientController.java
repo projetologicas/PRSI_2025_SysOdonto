@@ -1,5 +1,6 @@
 package br.edu.ifsp.sysodonto.controller;
 
+import br.edu.ifsp.sysodonto.filters.PatientFilter;
 import br.edu.ifsp.sysodonto.model.Patient;
 import br.edu.ifsp.sysodonto.model.User;
 import br.edu.ifsp.sysodonto.service.PatientService;
@@ -108,6 +109,56 @@ public class PatientController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+    
+    @PutMapping("/update/{id}")
+    public ResponseEntity<Object> updatePatient(@PathVariable("id") String id,
+                                               @RequestBody Patient patient,
+                                               Authentication authentication) throws ExecutionException, InterruptedException {
+        try {
+            User loggedUser = (User) authentication.getPrincipal();
+            String userId = loggedUser.getId();
+
+            Patient existingPatient = patientService.getPatientById(id)
+                    .orElseThrow(() -> new RuntimeException("Paciente não encontrado"));
+
+            if (!existingPatient.getUserId().equals(userId)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+
+            patient.setId(id);
+            patient.setUserId(userId);
+
+            Patient updatedPatient = patientService.updatePatient(id, patient);
+
+            return ResponseEntity.ok().body(Map.of(
+                    "message", "Paciente atualizado com sucesso!",
+                    "patient", updatedPatient
+            ));
+
+        } catch (ExecutionException | InterruptedException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                    "error", e.getMessage()
+            ));
+        }
+    }
+    
+    @PostMapping("/filter")
+    public ResponseEntity<Map<String, List<Patient>>> filterPatients(
+            @RequestBody PatientFilter filter,
+            Authentication authentication) throws ExecutionException, InterruptedException {
+        try {
+            User loggedUser = (User) authentication.getPrincipal();
+            String userId = loggedUser.getId();
+
+            List<Patient> patients = patientService.getPatientsByFilter(userId, filter);
+
+            return ResponseEntity.ok().body(Map.of("patients", patients));
+        } catch (ExecutionException | InterruptedException e) {
+            throw e;
         }
     }
 }
