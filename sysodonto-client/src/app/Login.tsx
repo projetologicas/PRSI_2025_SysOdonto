@@ -60,8 +60,8 @@ export function Login() {
                 const data = await res.json();
                 if (res.ok) {
                     setUser(data.loggedUser)
-                    setToken(Cookies.get("jwt") as string)
-                    navigate("/consultations")
+                    setToken(Cookies.get("jwt") || null)
+                    navigate("/home")
                 } else {
                     toast.current?.show({
                         severity: 'error',

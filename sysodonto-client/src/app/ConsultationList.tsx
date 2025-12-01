@@ -7,7 +7,7 @@ import { Toast } from "primereact/toast";
 import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
 import { Calendar } from "primereact/calendar";
-import { IconFilter, IconPlus, IconEdit, IconSearch, IconX } from "@tabler/icons-react";
+import { IconFilter, IconPlus, IconEdit, IconSearch, IconX, IconHome } from "@tabler/icons-react";
 import { useStoreToken } from "../features/user-features.ts";
 import { useNavigate } from "react-router-dom";
 import type { Consultation } from "../types/consultation";
@@ -157,6 +157,10 @@ export function ConsultationList() {
         navigate(`/consultations/update/${consultation.id}`);
     };
 
+    const goToHome = () => {
+        navigate("/home");
+    };
+
     const actionBodyTemplate = (rowData: Consultation) => {
         return (
             <Button
@@ -212,7 +216,16 @@ export function ConsultationList() {
 
     const header = (
         <div className="flex flex-column md:flex-row md:align-items-center md:justify-content-between gap-3">
-            <div className="flex align-items-center">
+            <div className="flex align-items-center gap-3">
+                <Button
+                    icon={<IconHome size={40} />}
+                    severity="secondary"
+                    rounded
+                    text
+                    tooltip="Voltar para Home"
+                    tooltipOptions={{ position: 'top' }}
+                    onClick={goToHome}
+                />
                 <h2 className="text-2xl font-bold text-900 m-0">Minhas Consultas</h2>
             </div>
             <div className="flex gap-2">

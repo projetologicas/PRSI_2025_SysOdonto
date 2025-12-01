@@ -6,6 +6,8 @@ import {useStoreToken} from "./features/user-features.ts";
 import {FormConsultation} from "./app/FormConsultation.tsx";
 import {PatientList} from "./app/PatientList.tsx";
 import {ConsultationList} from "./app/ConsultationList.tsx";
+import {Home} from "./app/Home.tsx";
+import {Profile} from "./app/Profile";
 
 function App() {
     const {token} = useStoreToken();
@@ -21,6 +23,9 @@ function App() {
                 <Routes>
                     <Route path="/formpacient" element={<FormPacient/>}/>
                     <Route path="/formconsultation" element={<FormConsultation/>}/>
+
+                    <Route path="/home" element={<Home />} />
+                    <Route path="/profile" element={<Profile />} />
 
                     <Route path="/patients" element={<PatientList />} />
                     <Route path="/patients/new" element={<FormPacient />} />

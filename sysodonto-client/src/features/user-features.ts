@@ -1,6 +1,7 @@
 import type {StoreState, TokenState, UserAuth, UserRegister} from "../types/user";
 import {z} from "zod";
 import {create} from "zustand/index";
+import Cookies from 'js-cookie';
 
 export const defaultUserAuthValues: UserAuth = {
     email: '',
@@ -37,7 +38,24 @@ export const useStoreLoggedUser = create<StoreState>((set) => ({
 }));
 
 export const useStoreToken = create<TokenState>((set) => ({
-    token: '',
-    setToken: (token) => set({ token }),
+    token: null,
+    setToken: (token: string | null) => set({ token }),
     clearToken: () => set({ token: null }),
 }));
+
+export const clearStore = () => {
+    useStoreLoggedUser.getState().clearUser();
+    useStoreToken.getState().clearToken();
+    Cookies.remove("jwt");
+};
+
+export const getSetUser = () => useStoreLoggedUser.getState().setUser;
+export const getSetToken = () => useStoreToken.getState().setToken;
+
+export const userRegisterRefinedSchema = userRegisterZodSchema.refine(
+    (data) => data.password === data.confirmPassword,
+    {
+        message: "As senhas não coincidem",
+        path: ["confirmPassword"]
+    }
+);

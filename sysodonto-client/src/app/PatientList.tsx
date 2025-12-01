@@ -8,7 +8,7 @@ import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
 import { InputMask } from "primereact/inputmask";
 import { Calendar } from "primereact/calendar";
-import { IconFilter, IconPlus, IconEdit, IconSearch, IconX } from "@tabler/icons-react";
+import { IconFilter, IconPlus, IconEdit, IconSearch, IconX, IconHome } from "@tabler/icons-react";
 import { useStoreToken } from "../features/user-features.ts";
 import { useNavigate } from "react-router-dom";
 import type { Patient } from "../types/patient";
@@ -67,16 +67,14 @@ export function PatientList() {
     const handleFilter = () => {
         setLoading(true);
 
-        // Remove a formatação dos campos antes de enviar
         const filterData = {
             name: filter.name || null,
-            cpf: filter.cpf ? filter.cpf.replace(/\D/g, '') : null, // Remove não números
-            telephone: filter.telephone ? filter.telephone.replace(/\D/g, '') : null, // Remove não números
+            cpf: filter.cpf ? filter.cpf.replace(/\D/g, '') : null,
+            telephone: filter.telephone ? filter.telephone.replace(/\D/g, '') : null,
             birthDate: filter.birthDate || null,
             treatmentDate: filter.treatmentDate || null
         };
 
-        // Remove campos nulos ou vazios
         Object.keys(filterData).forEach(key => {
             if (filterData[key] === null || filterData[key] === '') {
                 delete filterData[key];
@@ -139,7 +137,6 @@ export function PatientList() {
     };
 
     const formatPhone = (phone: string) => {
-        // Formata para (00) 00000-0000
         const cleaned = phone.replace(/\D/g, '');
         if (cleaned.length === 11) {
             return cleaned.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
@@ -162,6 +159,10 @@ export function PatientList() {
 
     const editPatient = (patient: Patient) => {
         navigate(`/patients/update/${patient.id}`);
+    };
+
+    const goToHome = () => {
+        navigate("/home");
     };
 
     const actionBodyTemplate = (rowData: Patient) => {
@@ -211,7 +212,16 @@ export function PatientList() {
 
     const header = (
         <div className="flex flex-column md:flex-row md:align-items-center md:justify-content-between gap-3">
-            <div className="flex align-items-center">
+            <div className="flex align-items-center gap-3">
+                <Button
+                    icon={<IconHome size={40} />}
+                    severity="secondary"
+                    rounded
+                    text
+                    tooltip="Voltar para Home"
+                    tooltipOptions={{ position: 'top' }}
+                    onClick={goToHome}
+                />
                 <h2 className="text-2xl font-bold text-900 m-0">Meus Pacientes</h2>
             </div>
             <div className="flex gap-2">

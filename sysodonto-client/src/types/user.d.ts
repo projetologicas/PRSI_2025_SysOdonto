@@ -29,7 +29,7 @@ interface StoreState {
 
 interface TokenState {
     token: string | null;
-    setToken: (user: string) => void;
+    setToken: (token: string | null) => void;
     clearToken: () => void;
 }
 

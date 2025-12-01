@@ -58,7 +58,6 @@ export function Register() {
     )
 
     const onSubmit = (dados: UserRegister) => {
-
         fetch("http://localhost:8000/view/auth/register", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
@@ -69,14 +68,14 @@ export function Register() {
                 const data = await res.json();
                 if (res.ok) {
                     setUser(data.loggedUser)
-                    setToken(Cookies.get("jwt") as string)
+                    setToken(Cookies.get("jwt") || null)
                     toast.current?.show({
                         severity: 'success',
                         summary: 'Sucesso',
                         detail: data.message,
                         life: 3000
                     });
-                    navigate("/patients")
+                    navigate("/home")
                 } else {
                     toast.current?.show({
                         severity: 'error',
