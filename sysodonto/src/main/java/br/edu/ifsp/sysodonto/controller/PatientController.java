@@ -4,15 +4,13 @@ import br.edu.ifsp.sysodonto.filters.PatientFilter;
 import br.edu.ifsp.sysodonto.model.Patient;
 import br.edu.ifsp.sysodonto.model.User;
 import br.edu.ifsp.sysodonto.service.PatientService;
-
-import org.springframework.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 import java.util.Map;
@@ -40,10 +38,18 @@ public class PatientController {
             throw e;
         }
     }
-    
+
+    @GetMapping("/findAll")
+    public ResponseEntity<Map<String, List<Patient>>> getAllPatients() throws ExecutionException, InterruptedException {
+        List<Patient> allPatients = patientService.getAllPatients();
+        return ResponseEntity.ok().body(Map.of(
+                "patients", allPatients
+        ));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Patient> getPatient(@PathVariable("id") String id,
-                                             Authentication authentication) throws ExecutionException, InterruptedException {
+                                              Authentication authentication) throws ExecutionException, InterruptedException {
         try {
             User loggedUser = (User) authentication.getPrincipal();
             String userId = loggedUser.getId();
@@ -111,11 +117,11 @@ public class PatientController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
-    
+
     @PutMapping("/update/{id}")
     public ResponseEntity<Object> updatePatient(@PathVariable("id") String id,
-                                               @RequestBody Patient patient,
-                                               Authentication authentication) throws ExecutionException, InterruptedException {
+                                                @RequestBody Patient patient,
+                                                Authentication authentication) throws ExecutionException, InterruptedException {
         try {
             User loggedUser = (User) authentication.getPrincipal();
             String userId = loggedUser.getId();
@@ -145,7 +151,7 @@ public class PatientController {
             ));
         }
     }
-    
+
     @PostMapping("/filter")
     public ResponseEntity<Map<String, List<Patient>>> filterPatients(
             @RequestBody PatientFilter filter,
