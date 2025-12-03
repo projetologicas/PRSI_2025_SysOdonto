@@ -8,6 +8,9 @@ import {PatientList} from "./app/PatientList.tsx";
 import {ConsultationList} from "./app/ConsultationList.tsx";
 import {Home} from "./app/Home.tsx";
 import {Profile} from "./app/Profile";
+import {FormEmailToRecovery} from "./app/password-recovery/FormEmailToRecovery.tsx";
+import {FormCodeEmail} from "./app/password-recovery/FormCodeEmail.tsx";
+import {FormRecoveryPassword} from "./app/password-recovery/FormRecoveryPassword.tsx";
 
 function App() {
     const {token} = useStoreToken();
@@ -17,6 +20,9 @@ function App() {
             <Routes>
                 <Route path="/" element={<Login/>}/>
                 <Route path="/register" element={<Register/>}/>
+                <Route path="/formEmailToRecovery" element={<FormEmailToRecovery />}/>
+                <Route path="/formCodeEmail" element={<FormCodeEmail />}/>
+                <Route path="/formRecoveryPassword" element={<FormRecoveryPassword />}/>
             </Routes>
 
             {token &&
@@ -33,7 +39,7 @@ function App() {
 
                     <Route path="/consultations" element={<ConsultationList />} />
                     <Route path="/consultations/new" element={<FormConsultation />} />
-                    <Route path="/consultations/update/:id" element={<FormConsultation />} />
+                    <Route path="/consultations/update/:id" element={<FormConsultation />}/>
                 </Routes>
             }
 

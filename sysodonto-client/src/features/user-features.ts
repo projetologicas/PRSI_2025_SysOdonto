@@ -1,4 +1,4 @@
-import type {StoreState, TokenState, UserAuth, UserRegister} from "../types/user";
+import type {StoreState, TokenState, UserAuth, UserRecoverPassword, UserRegister} from "../types/user";
 import {z} from "zod";
 import {create} from "zustand/index";
 import Cookies from 'js-cookie';
@@ -6,6 +6,11 @@ import Cookies from 'js-cookie';
 export const defaultUserAuthValues: UserAuth = {
     email: '',
     password: '',
+}
+
+export const defaultUserRecoverPassword: UserRecoverPassword = {
+    password: '',
+    confirmPassword: '',
 }
 
 export const defaultUserReqisterValues: UserRegister = {
@@ -21,6 +26,11 @@ export const userAuthZodSchema = z.object({
         .min(1, "O email é obrigatório")
         .email("Formato de email inválido"),
     password: z.string().nonempty("A senha é obrigatória"),
+})
+
+export const userRecoverPasswordSchema = z.object({
+    password: z.string().min(3, "A senha deve conter no minimo 3 digitos"),
+    confirmPassword: z.string().nonempty("confirme a senha para prosseguir"),
 })
 
 export const userRegisterZodSchema = z.object({
@@ -52,10 +62,10 @@ export const clearStore = () => {
 export const getSetUser = () => useStoreLoggedUser.getState().setUser;
 export const getSetToken = () => useStoreToken.getState().setToken;
 
-export const userRegisterRefinedSchema = userRegisterZodSchema.refine(
-    (data) => data.password === data.confirmPassword,
-    {
-        message: "As senhas não coincidem",
-        path: ["confirmPassword"]
-    }
-);
+// export const userRegisterRefinedSchema = userRegisterZodSchema.refine(
+//     (data) => data.password === data.confirmPassword,
+//     {
+//         message: "As senhas não coincidem",
+//         path: ["confirmPassword"]
+//     }
+// );

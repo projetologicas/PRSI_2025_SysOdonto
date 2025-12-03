@@ -44,8 +44,13 @@ export function Login() {
     )
 
     const footer = (
-        <div className="text-center mt-3 text-500">
-            Não possui uma conta? <Link to="/register" className="text-primary font-bold">Cadastre-se</Link>
+        <div className="flex flex-column align-items-center justify-content-center w-full">
+            <div className="text-center mt-3 text-500">
+                Não possui uma conta? <Link to="/register" className="text-primary font-bold">Cadastre-se</Link>
+            </div>
+            <div className="text-center mt-3 text-500">
+                Esqueceu a senha? <Link to="/formEmailToRecovery" className="text-primary font-bold">Recuperar Senha</Link>
+            </div>
         </div>
     )
 

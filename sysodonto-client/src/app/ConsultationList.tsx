@@ -1,16 +1,16 @@
-import { useState, useEffect, useRef } from "react";
-import { DataTable } from "primereact/datatable";
-import { Column } from "primereact/column";
-import { Button } from "primereact/button";
-import { Card } from "primereact/card";
-import { Toast } from "primereact/toast";
-import { Dialog } from "primereact/dialog";
-import { InputText } from "primereact/inputtext";
-import { Calendar } from "primereact/calendar";
-import { IconFilter, IconPlus, IconEdit, IconSearch, IconX, IconHome } from "@tabler/icons-react";
-import { useStoreToken } from "../features/user-features.ts";
-import { useNavigate } from "react-router-dom";
-import type { Consultation } from "../types/consultation";
+import {useEffect, useRef, useState} from "react";
+import {DataTable} from "primereact/datatable";
+import {Column} from "primereact/column";
+import {Button} from "primereact/button";
+import {Card} from "primereact/card";
+import {Toast} from "primereact/toast";
+import {Dialog} from "primereact/dialog";
+import {InputText} from "primereact/inputtext";
+import {Calendar} from "primereact/calendar";
+import {IconEdit, IconFilter, IconHome, IconPlus, IconSearch, IconX} from "@tabler/icons-react";
+import {useStoreToken} from "../features/user-features.ts";
+import {useNavigate} from "react-router-dom";
+import type {Consultation} from "../types/consultation";
 
 interface FilterConsultation {
   patientName?: string;
@@ -84,7 +84,6 @@ export function ConsultationList() {
             }
         });
 
-        console.log('Enviando filtro:', filterData);
 
         fetch("http://localhost:8000/view/consultations/filter", {
             method: "POST",
@@ -178,7 +177,7 @@ export function ConsultationList() {
     const patientNameBodyTemplate = (rowData: Consultation) => {
         return (
             <span title={rowData.patientName}>
-                {truncateText(rowData.patientName)}
+                {truncateText(rowData.patientName ?? '')}
             </span>
         );
     };
@@ -186,7 +185,7 @@ export function ConsultationList() {
     const observationsBodyTemplate = (rowData: Consultation) => {
         return (
             <span title={rowData.observations}>
-                {truncateText(rowData.observations, 50)}
+                {truncateText(rowData.observations ?? '', 50)}
             </span>
         );
     };
@@ -250,7 +249,6 @@ export function ConsultationList() {
         <div className="flex justify-content-center w-full p-4" style={{ backgroundColor: '#ccfaf7', minHeight: '100vh' }}>
             <Toast ref={toast} />
 
-            {/* Modal de Filtro */}
             <Dialog
                 header="Filtrar Consultas"
                 visible={filterVisible}

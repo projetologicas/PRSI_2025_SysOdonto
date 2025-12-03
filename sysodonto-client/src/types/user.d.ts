@@ -20,6 +20,11 @@ export type UserRegister = {
     profilePicture?: string;
 }
 
+export type UserRecoverPassword = {
+    password: string;
+    confirmPassword: string;
+}
+
 
 interface StoreState {
     user: User | null;
