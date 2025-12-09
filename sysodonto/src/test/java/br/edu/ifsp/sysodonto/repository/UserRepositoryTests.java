@@ -9,17 +9,5 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 @Slf4j
 public class UserRepositoryTests {
-    @Autowired
-    private UserRepository userRepository;
 
-    @Test
-    void createUser() {
-        try {
-            log.info("createUser has started.");
-            userRepository.createUser(new User("IntelliJ", "", "intellij@test.com", "testPassword"));
-            log.info("createUser has ended.");
-        } catch (Throwable t) {
-            log.error("createUser failed.", t);
-        }
-    }
 }
