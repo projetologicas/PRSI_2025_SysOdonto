@@ -111,7 +111,9 @@ export function Home() {
     };
 
     const editConsultation = (consultation: Consultation) => {
-        navigate(`/consultations/update/${consultation.id}`);
+        navigate(`/consultations/update/${consultation.id}`, {
+            state: { fromHome: true }
+        });
     };
 
     const actionBodyTemplate = (rowData: Consultation) => {

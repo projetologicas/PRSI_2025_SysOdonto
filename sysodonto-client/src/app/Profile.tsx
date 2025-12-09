@@ -16,6 +16,7 @@ export function Profile() {
     const [editingName, setEditingName] = useState(false);
     const [newName, setNewName] = useState("");
     const [changePasswordDialog, setChangePasswordDialog] = useState(false);
+    const [logoutConfirmDialog, setLogoutConfirmDialog] = useState(false); // NOVO: Diálogo de confirmação
     const [currentPassword, setCurrentPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
@@ -68,8 +69,13 @@ export function Profile() {
         }
     };
 
-    const handleLogout = () => {
+    const confirmLogout = () => {
+        setLogoutConfirmDialog(true);
+    };
+
+    const handleLogoutConfirmed = () => {
         clearStore();
+        setLogoutConfirmDialog(false);
         navigate("/");
     };
 
@@ -241,6 +247,24 @@ export function Profile() {
         }
     };
 
+    // NOVO: Footer do diálogo de confirmação de logout
+    const logoutConfirmFooter = (
+        <div className="flex justify-content-between gap-2 w-full">
+            <Button
+                label="Cancelar"
+                severity="secondary"
+                icon={<IconX size={18} />}
+                onClick={() => setLogoutConfirmDialog(false)}
+            />
+            <Button
+                label="Sair"
+                severity="danger"
+                icon={<IconLogout size={18} />}
+                onClick={handleLogoutConfirmed}
+            />
+        </div>
+    );
+
     const changePasswordFooter = (
         <div className="flex justify-content-between gap-2">
             <Button
@@ -277,6 +301,26 @@ export function Profile() {
         <div className="flex justify-content-center w-full p-4" style={{ backgroundColor: '#ccfaf7', minHeight: '100vh' }}>
             <Toast ref={toast} />
 
+            {/* NOVO: Diálogo de confirmação de logout */}
+            <Dialog
+                header="Confirmar Logout"
+                visible={logoutConfirmDialog}
+                style={{ width: '400px' }}
+                footer={logoutConfirmFooter}
+                onHide={() => setLogoutConfirmDialog(false)}
+            >
+                <div className="flex align-items-center gap-3 mt-3">
+                    <i className="pi pi-exclamation-triangle text 3xl" style={{ fontSize: '2rem', color: '#f0ad4e' }}></i>
+                    <div>
+                        <h4 className="m-0 mb-1">Tem certeza que deseja sair?</h4>
+                        <p className="text-600 m-0">
+                            Você será desconectado da sua conta e redirecionado para a página de login.
+                        </p>
+                    </div>
+                </div>
+            </Dialog>
+
+            {/* Diálogo para alterar senha */}
             <Dialog
                 header="Alterar Senha"
                 visible={changePasswordDialog}
@@ -351,11 +395,12 @@ export function Profile() {
                             />
                             <h1 className="text-2xl font-bold text-900 m-0">Meu Perfil</h1>
                         </div>
+                        {/* MODIFICADO: Agora chama confirmLogout em vez de handleLogout direto */}
                         <Button
                             label="Sair"
                             icon={<IconLogout size={18} />}
                             severity="danger"
-                            onClick={handleLogout}
+                            onClick={confirmLogout}
                         />
                     </div>
                 </Card>
@@ -507,7 +552,6 @@ export function Profile() {
                             </Card>
                         </div>
                     </div>
-
                 </Card>
             </div>
         </div>

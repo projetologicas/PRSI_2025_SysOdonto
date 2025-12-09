@@ -1,6 +1,6 @@
 import {Card} from "primereact/card";
 import {Button} from "primereact/button";
-import {IconDeviceFloppy, IconPlus, IconReplace, IconX} from "@tabler/icons-react";
+import {IconDeviceFloppy, IconPlus, IconReplace, IconX, IconArrowLeft} from "@tabler/icons-react";
 import {useEffect, useRef, useState} from "react";
 import {InputText} from "primereact/inputtext";
 import {FloatLabel} from "primereact/floatlabel";
@@ -146,10 +146,20 @@ export function FormPacient() {
     };
 
     const header = (
-        <div className="flex align-items-center justify-content-center">
+        <div className="flex align-items-center justify-content-between">
+            <Button
+                icon={<IconArrowLeft size={20} />}
+                severity="secondary"
+                rounded
+                text
+                tooltip="Voltar para Pacientes"
+                tooltipOptions={{ position: 'top' }}
+                onClick={() => navigate("/patients")}
+            />
             <h2 className="text-2xl font-bold text-900 m-0">
                 {isEdit ? 'Editar Paciente' : 'Cadastrar Paciente'}
             </h2>
+            <div style={{width: '40px'}}></div>
         </div>
     );
 
@@ -223,111 +233,118 @@ export function FormPacient() {
 
                         <div className="flex flex-column gap-3 w-full md:w-8">
                             <div className="flex flex-column">
-                                <FloatLabel>
-                                    <InputText
-                                        id="name"
-                                        className="w-full"
-                                        placeholder="Digite o nome"
-                                        {...register('name')}
+                                <label htmlFor="name" className="font-bold block mb-2">
+                                    Nome *
+                                </label>
+                                <InputText
+                                    id="name"
+                                    className={`w-full ${errors.name ? 'p-invalid' : ''}`}
+                                    placeholder="Digite o nome completo"
+                                    {...register('name')}
+                                    disabled={loading}
+                                />
+                                {errors.name && <small className="p-error mt-1">{errors.name.message}</small>}
+                            </div>
+
+                            <div className="flex flex-column md:flex-row gap-3">
+                                <div className="flex flex-column w-full">
+                                    <label htmlFor="cpf" className="font-bold block mb-2">
+                                        CPF *
+                                    </label>
+                                    <InputMask
+                                        id="cpf"
+                                        className={`w-full ${errors.cpf ? 'p-invalid' : ''}`}
+                                        mask={'999.999.999-99'}
+                                        {...register('cpf')}
                                         disabled={loading}
+                                        placeholder="000.000.000-00"
                                     />
-                                    <label htmlFor="name">Nome</label>
-                                </FloatLabel>
-                                {errors.name && <Message severity="error" text={errors.name.message} className="mt-1"/>}
-                            </div>
-
-                            <div className="flex flex-column md:flex-row gap-3">
-                                <div className="flex flex-column w-full">
-                                    <FloatLabel>
-                                        <InputMask
-                                            id="cpf"
-                                            className="w-full"
-                                            mask={'999.999.999-99'}
-                                            {...register('cpf')}
-                                            disabled={loading}
-                                        />
-                                        <label htmlFor="cpf">CPF</label>
-                                    </FloatLabel>
-                                    {errors.cpf && <Message severity="error" text={errors.cpf.message} className="mt-1"/>}
+                                    {errors.cpf && <small className="p-error mt-1">{errors.cpf.message}</small>}
                                 </div>
 
                                 <div className="flex flex-column w-full">
-                                    <FloatLabel>
-                                        <InputMask
-                                            id="telephone"
-                                            keyfilter="pnum"
-                                            className="w-full"
-                                            mask={'99 99999-9999'}
-                                            {...register('telephone')}
-                                            disabled={loading}
-                                        />
-                                        <label htmlFor="telephone">Telefone</label>
-                                    </FloatLabel>
-                                    {errors.telephone && <Message severity="error" text={errors.telephone.message} className="mt-1"/>}
+                                    <label htmlFor="telephone" className="font-bold block mb-2">
+                                        Telefone *
+                                    </label>
+                                    <InputMask
+                                        id="telephone"
+                                        className={`w-full ${errors.telephone ? 'p-invalid' : ''}`}
+                                        mask={'99 99999-9999'}
+                                        {...register('telephone')}
+                                        disabled={loading}
+                                        placeholder="11 99999-9999"
+                                    />
+                                    {errors.telephone && <small className="p-error mt-1">{errors.telephone.message}</small>}
                                 </div>
                             </div>
 
                             <div className="flex flex-column md:flex-row gap-3">
                                 <div className="flex flex-column w-full">
-                                    <FloatLabel>
-                                        <Controller
-                                            name="birthDate"
-                                            control={control}
-                                            render={({field}) => (
+                                    <label htmlFor="birthDate" className="font-bold block mb-2">
+                                        Data de Nascimento
+                                    </label>
+                                    <Controller
+                                        name="birthDate"
+                                        control={control}
+                                        render={({field, fieldState}) => (
+                                            <>
                                                 <Calendar
                                                     id="birthDate"
-                                                    className="w-full"
+                                                    className={`w-full ${fieldState.error ? 'p-invalid' : ''}`}
                                                     value={field.value}
                                                     onChange={(e) => field.onChange(e.value)}
                                                     dateFormat="dd/mm/yy"
                                                     showIcon
                                                     disabled={loading}
+                                                    placeholder="Selecione a data"
                                                 />
-                                            )}
-                                        />
-                                        <label htmlFor="birthDate">Data de Nascimento</label>
-                                    </FloatLabel>
-                                    {errors.birthDate && <Message severity="error" text={errors.birthDate.message} className="mt-1"/>}
+                                                {fieldState.error && <small className="p-error mt-1">{fieldState.error.message}</small>}
+                                            </>
+                                        )}
+                                    />
                                 </div>
 
                                 <div className="flex flex-column w-full">
-                                    <FloatLabel>
-                                        <Controller
-                                            name="startTreatmentDate"
-                                            control={control}
-                                            render={({field}) => (
+                                    <label htmlFor="startTreatmentDate" className="font-bold block mb-2">
+                                        Início do Tratamento
+                                    </label>
+                                    <Controller
+                                        name="startTreatmentDate"
+                                        control={control}
+                                        render={({field, fieldState}) => (
+                                            <>
                                                 <Calendar
                                                     id="startTreatmentDate"
-                                                    className="w-full"
+                                                    className={`w-full ${fieldState.error ? 'p-invalid' : ''}`}
                                                     value={field.value}
                                                     onChange={(e) => field.onChange(e.value)}
                                                     dateFormat="dd/mm/yy"
                                                     showIcon
                                                     disabled={loading}
+                                                    placeholder="Selecione a data"
                                                 />
-                                            )}
-                                        />
-                                        <label htmlFor="startTreatmentDate">Início do Tratamento</label>
-                                    </FloatLabel>
-                                    {errors.startTreatmentDate && <Message severity="error" text={errors.startTreatmentDate.message} className="mt-1"/>}
+                                                {fieldState.error && <small className="p-error mt-1">{fieldState.error.message}</small>}
+                                            </>
+                                        )}
+                                    />
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <div className="flex flex-column mt-4">
-                        <FloatLabel>
-                            <InputTextarea
-                                id="observations"
-                                className="w-full"
-                                rows={4}
-                                {...register('observations')}
-                                disabled={loading}
-                                placeholder="Digite observações sobre o paciente"
-                            />
-                            <label htmlFor="observations">Observações</label>
-                        </FloatLabel>
-                        {errors.observations && <Message severity="error" text={errors.observations.message} className="mt-1"/>}
+                        <label htmlFor="observations" className="font-bold block mb-2">
+                            Observações
+                        </label>
+                        <InputTextarea
+                            id="observations"
+                            className={`w-full ${errors.observations ? 'p-invalid' : ''}`}
+                            rows={4}
+                            {...register('observations')}
+                            disabled={loading}
+                            placeholder="Digite observações sobre o paciente"
+                        />
+                        {errors.observations && <small className="p-error mt-1">{errors.observations.message}</small>}
                     </div>
 
                     <div className="flex flex-row gap-3 mt-5 justify-content-end">
@@ -336,16 +353,14 @@ export function FormPacient() {
                             label="Cancelar"
                             severity="secondary"
                             onClick={() => navigate("/patients")}
-                            icon={<IconDeviceFloppy size={18}/>}
-                            className="w-3"
                             disabled={loading}
                         />
                         <Button
                             type="submit"
                             label={isEdit ? "Atualizar" : "Salvar"}
                             icon={<IconDeviceFloppy size={18}/>}
-                            className="w-3"
                             loading={loading}
+                            disabled={loading}
                         />
                     </div>
                 </form>
