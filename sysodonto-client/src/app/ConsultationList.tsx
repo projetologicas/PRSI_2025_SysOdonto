@@ -163,7 +163,7 @@ export function ConsultationList() {
     const actionBodyTemplate = (rowData: Consultation) => {
         return (
             <Button
-                icon={<IconEdit size={18} />}
+                icon={<IconEdit size={25} />}
                 severity="info"
                 rounded
                 text

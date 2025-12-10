@@ -8,7 +8,7 @@ import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
 import { InputMask } from "primereact/inputmask";
 import { Calendar } from "primereact/calendar";
-import { IconFilter, IconPlus, IconEdit, IconSearch, IconX, IconHome } from "@tabler/icons-react";
+import { IconFilter, IconPlus, IconEdit, IconSearch, IconX, IconHome, IconDental } from "@tabler/icons-react";
 import { useStoreToken } from "../features/user-features.ts";
 import { useNavigate } from "react-router-dom";
 import type { Patient } from "../types/patient";
@@ -161,21 +161,36 @@ export function PatientList() {
         navigate(`/patients/update/${patient.id}`);
     };
 
+    const goToOdontograma = (patient: Patient) => {
+        navigate(`/odontograma/${patient.id}`);
+    };
+
     const goToHome = () => {
         navigate("/home");
     };
 
     const actionBodyTemplate = (rowData: Patient) => {
         return (
-            <Button
-                icon={<IconEdit size={18} />}
-                severity="info"
-                rounded
-                text
-                tooltip="Editar paciente"
-                tooltipOptions={{ position: 'top' }}
-                onClick={() => editPatient(rowData)}
-            />
+            <div className="flex gap-1 justify-content-center">
+                <Button
+                    icon={<IconDental size={25} />}
+                    severity="help"
+                    rounded
+                    text
+                    tooltip="Odontograma"
+                    tooltipOptions={{ position: 'top' }}
+                    onClick={() => goToOdontograma(rowData)}
+                />
+                <Button
+                    icon={<IconEdit size={25} />}
+                    severity="info"
+                    rounded
+                    text
+                    tooltip="Editar paciente"
+                    tooltipOptions={{ position: 'top' }}
+                    onClick={() => editPatient(rowData)}
+                />
+            </div>
         );
     };
 
@@ -246,7 +261,6 @@ export function PatientList() {
         <div className="flex justify-content-center w-full p-4" style={{ backgroundColor: '#ccfaf7', minHeight: '100vh' }}>
             <Toast ref={toast} />
 
-            {/* Modal de Filtro */}
             <Dialog
                 header="Filtrar Pacientes"
                 visible={filterVisible}
@@ -378,7 +392,7 @@ export function PatientList() {
                     <Column
                         body={actionBodyTemplate}
                         header="Ações"
-                        style={{ minWidth: '100px', maxWidth: '120px', textAlign: 'center' }}
+                        style={{ minWidth: '140px', maxWidth: '160px', textAlign: 'center' }}
                         bodyStyle={{ textAlign: 'center' }}
                     />
                 </DataTable>

@@ -11,6 +11,7 @@ import {Profile} from "./app/Profile";
 import {FormEmailToRecovery} from "./app/password-recovery/FormEmailToRecovery.tsx";
 import {FormCodeEmail} from "./app/password-recovery/FormCodeEmail.tsx";
 import {FormRecoveryPassword} from "./app/password-recovery/FormRecoveryPassword.tsx";
+import {Odontograma} from "./app/Odontograma.tsx";
 
 function App() {
     const {token} = useStoreToken();
@@ -36,6 +37,8 @@ function App() {
                     <Route path="/patients" element={<PatientList />} />
                     <Route path="/patients/new" element={<FormPacient />} />
                     <Route path="/patients/update/:id" element={<FormPacient />} />
+
+                    <Route path="/odontograma/:patientId" element={<Odontograma />} />
 
                     <Route path="/consultations" element={<ConsultationList />} />
                     <Route path="/consultations/new" element={<FormConsultation />} />
