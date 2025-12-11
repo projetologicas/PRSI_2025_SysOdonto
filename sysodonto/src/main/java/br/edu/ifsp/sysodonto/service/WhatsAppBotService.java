@@ -5,6 +5,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.http.auth.InvalidCredentialsException;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
@@ -23,7 +24,9 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
-public class WhatsAppBotService {
+public class WhatsAppBotService implements Runnable {
+	
+	private String userId;
 	
 	@Autowired
 	private ConsultationService consultationService;
@@ -32,11 +35,16 @@ public class WhatsAppBotService {
 	private PatientService patientService;
 	
 	private final String xpathSearchBox = "/html/body/div[1]/div/div/div/div/div[3]/div/div[4]/div/div[1]/div/div[2]/div/div/div[1]";
-	private final String xpathPatientBox = "/html/body/div[1]/div/div/div/div/div[3]/div/div[4]/div/div[3]/div[1]/div/div/div[2]/div/div/div[2]";
+	private final String xpathPatientBox = "/html/body/div[1]/div/div/div/div/div[3]/div/div[4]/div/div[3]/div[1]/div/div/div[2]/div/div/div/div[2]";
 	private final String xpathMessageInput = "/html/body/div[1]/div/div/div/div/div[3]/div/div[5]/div/footer/div[1]/div/span/div/div/div/div[3]/div/p";
 	private final String xpathSendMessageButton = "/html/body/div[1]/div/div/div/div/div[3]/div/div[5]/div/footer/div[1]/div/span/div/div/div/div[4]/div/span/button";
+	
+	@Override
+	public void run() {
+		sendMessages();
+	}
 
-	public void sendMessages(String userId) {
+	private void sendMessages() {
 		try {
 			List<Consultation> consultations = consultationService.getTomorrowConsultations(userId);
 			
@@ -74,7 +82,7 @@ public class WhatsAppBotService {
 						pause(500);
 										
 						typeHumanLike(searchBox, patient.getTelephone());
-					    pause(1300); 
+					    pause(2000); 
 
 					    WebElement patientBox = wait.until(ExpectedConditions.elementToBeClickable(By.xpath(xpathPatientBox)));
 					    patientBox.click();
@@ -134,5 +142,17 @@ public class WhatsAppBotService {
 	        element.sendKeys(String.valueOf(c));
 	        pause(50 + (long)(Math.random() * 100));
 	    }
+	}
+
+	public String getUserId() {
+		return userId;
+	}
+
+	public void setUserId(String userId) throws InvalidCredentialsException {
+		if (userId == null || userId.isBlank()) {
+			throw new InvalidCredentialsException();
+		}
+		
+		this.userId = userId;
 	}
 }

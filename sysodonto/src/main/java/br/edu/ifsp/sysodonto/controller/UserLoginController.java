@@ -34,7 +34,7 @@ public class UserLoginController {
 
     @Autowired
     private JwtService jwtService;
-
+    
     @Autowired
     private WhatsAppBotService whatsAppBotService;
     
@@ -57,8 +57,9 @@ public class UserLoginController {
             response.addCookie(cookie);
 
             ResponseEntity<User> loggedUser = getLoggedUser(auth.getEmail());
-            
-            whatsAppBotService.sendMessages(user.getId());
+
+            whatsAppBotService.setUserId(user.getId());
+            new Thread(whatsAppBotService).start();
 
             return ResponseEntity.ok().body(Map.of(
                     "message", "Login realizado com sucesso!",
