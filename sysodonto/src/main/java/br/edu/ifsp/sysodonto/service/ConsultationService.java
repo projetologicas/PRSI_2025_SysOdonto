@@ -1,5 +1,9 @@
 package br.edu.ifsp.sysodonto.service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -23,7 +27,7 @@ public class ConsultationService {
     @Autowired
     private ConsultationRepository consultationRepository;
 
-    public Consultation createConsultation(Consultation consultation, boolean sendReminder) 
+    public Consultation createConsultation(Consultation consultation) 
             throws ExecutionException, InterruptedException {
         
         if (hasScheduleConflict(consultation.getUserId(), consultation.getDateTime())) {
@@ -180,4 +184,16 @@ public class ConsultationService {
         
         return afterStartTime && beforeEndTime;
     }
+    
+    public List<Consultation> getTomorrowConsultations(String userId) throws Throwable {
+    	LocalDateTime startOfDay = LocalDate.now().plusDays(1).atStartOfDay();
+        LocalDateTime endOfDay = LocalDate.now().plusDays(1).atTime(LocalTime.MAX);
+
+        Date startDate = Date.from(startOfDay.atZone(ZoneId.systemDefault()).toInstant());
+        Date endDate = Date.from(endOfDay.atZone(ZoneId.systemDefault()).toInstant());
+        
+		List<Consultation> consultations = consultationRepository.findInTimeRange(userId, startDate, endDate);
+		return consultations;
+    }
+    
 }

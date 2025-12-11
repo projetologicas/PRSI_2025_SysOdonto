@@ -25,6 +25,8 @@ public class Consultation {
     private String patientName;
 
     private String observations;
+    
+    private boolean sendReminder;
 
     public Consultation() {}
 

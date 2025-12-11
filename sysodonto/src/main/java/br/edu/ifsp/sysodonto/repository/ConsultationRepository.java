@@ -1,14 +1,14 @@
 package br.edu.ifsp.sysodonto.repository;
 
-import java.util.Date;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Repository;
 
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.CollectionReference;
@@ -16,6 +16,7 @@ import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.Query;
+import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
 import com.google.cloud.firestore.WriteResult;
 
@@ -40,6 +41,7 @@ public class ConsultationRepository {
 
     public Consultation save(Consultation consultation) throws ExecutionException, InterruptedException {
         DocumentReference docRef;
+        
         if (consultation.getId() == null || consultation.getId().isEmpty()) {
             docRef = db.collection(consultationsCollection).document();
             consultation.setId(docRef.getId());
@@ -137,4 +139,22 @@ public class ConsultationRepository {
         System.out.println("Documento deletado em: " + result.getUpdateTime());
         return true;
     }
+    
+    public List<Consultation> findInTimeRange(String dentistId, Date start, Date end) throws Throwable {
+    	ApiFuture<QuerySnapshot> future = db.collection(consultationsCollection)
+    			.whereGreaterThanOrEqualTo("dateTime", start)
+    			.whereLessThanOrEqualTo("dateTime", end)
+    			.get();
+    	
+    	List<Consultation> consultations = new ArrayList<Consultation>();
+    	List<QueryDocumentSnapshot> documents = future.get().getDocuments();
+    	
+    	for (QueryDocumentSnapshot document : documents) {
+    		Consultation c = document.toObject(Consultation.class);
+    		consultations.add(c);
+    	}
+    	
+    	return consultations;
+    }
+    
 }

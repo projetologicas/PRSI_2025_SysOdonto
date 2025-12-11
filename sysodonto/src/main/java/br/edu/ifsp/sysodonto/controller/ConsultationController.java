@@ -81,7 +81,7 @@ public class ConsultationController {
 
             consultation.setUserId(userId);
 
-            Consultation createdConsultation = consultationService.createConsultation(consultation, false);
+            Consultation createdConsultation = consultationService.createConsultation(consultation);
 
             return ResponseEntity.ok().body(Map.of(
                     "message", "Consulta criada com sucesso!",

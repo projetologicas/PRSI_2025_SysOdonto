@@ -1,5 +1,19 @@
 package br.edu.ifsp.sysodonto.controller;
 
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
 import br.edu.ifsp.sysodonto.dto.AuthRequest;
 import br.edu.ifsp.sysodonto.dto.RegisterRequest;
 import br.edu.ifsp.sysodonto.dto.UserResponse;
@@ -7,16 +21,9 @@ import br.edu.ifsp.sysodonto.exceptions.EmailAlreadyUsedException;
 import br.edu.ifsp.sysodonto.model.User;
 import br.edu.ifsp.sysodonto.service.JwtService;
 import br.edu.ifsp.sysodonto.service.UserService;
+import br.edu.ifsp.sysodonto.service.WhatsAppBotService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 @Controller
 @RequestMapping("/view/auth")
@@ -28,6 +35,9 @@ public class UserLoginController {
     @Autowired
     private JwtService jwtService;
 
+    @Autowired
+    private WhatsAppBotService whatsAppBotService;
+    
     @PostMapping("/login")
     public ResponseEntity<Object> login(@RequestBody AuthRequest auth,
                                         HttpServletResponse response) {
@@ -47,6 +57,8 @@ public class UserLoginController {
             response.addCookie(cookie);
 
             ResponseEntity<User> loggedUser = getLoggedUser(auth.getEmail());
+            
+            whatsAppBotService.sendMessages(user.getId());
 
             return ResponseEntity.ok().body(Map.of(
                     "message", "Login realizado com sucesso!",
