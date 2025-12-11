@@ -102,7 +102,7 @@ public class WhatsAppBotService {
 			
 		}
 		catch(Throwable t ) {
-			log.error("Error on sending WhatsApp messages.", t);
+			log.error("Error loading chrome driver.", t);
 		}
 	}
 	
@@ -114,8 +114,10 @@ public class WhatsAppBotService {
 		String time = sdfTime.format(consultation.getDateTime());
 		
 		StringBuilder message = new StringBuilder();
-		message.append("Olá, " + patient.getName() + ".");
-		message.append("Você possui uma consulta no dia " + date + " às " + time + ". Posso confirmar sua presença?");
+		message.append("Olá, " + patient.getName() + ". ");
+		message.append("Você possui uma consulta no dia " + date + " às " + time + ". ");
+		message.append("Posso confirmar sua presença?");
+		
 		return message.toString();
 	}
 	

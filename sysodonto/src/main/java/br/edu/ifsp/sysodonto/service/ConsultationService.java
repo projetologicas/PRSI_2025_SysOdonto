@@ -195,5 +195,16 @@ public class ConsultationService {
 		List<Consultation> consultations = consultationRepository.findInTimeRange(userId, startDate, endDate);
 		return consultations;
     }
+
+	public List<Consultation> getTodaysConsultations(String userId) throws Throwable {
+		LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
+        LocalDateTime endOfDay = LocalDate.now().atTime(LocalTime.MAX);
+
+        Date startDate = Date.from(startOfDay.atZone(ZoneId.systemDefault()).toInstant());
+        Date endDate = Date.from(endOfDay.atZone(ZoneId.systemDefault()).toInstant());
+        
+		List<Consultation> consultations = consultationRepository.findInTimeRange(userId, startDate, endDate);
+		return consultations;
+	}
     
 }

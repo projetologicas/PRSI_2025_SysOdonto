@@ -142,6 +142,7 @@ public class ConsultationRepository {
     
     public List<Consultation> findInTimeRange(String dentistId, Date start, Date end) throws Throwable {
     	ApiFuture<QuerySnapshot> future = db.collection(consultationsCollection)
+    			.whereEqualTo("userId", dentistId)
     			.whereGreaterThanOrEqualTo("dateTime", start)
     			.whereLessThanOrEqualTo("dateTime", end)
     			.get();

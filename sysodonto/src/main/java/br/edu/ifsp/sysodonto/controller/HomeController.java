@@ -1,17 +1,12 @@
 package br.edu.ifsp.sysodonto.controller;
 
-import br.edu.ifsp.sysodonto.model.Consultation;
-import br.edu.ifsp.sysodonto.model.Patient;
-import br.edu.ifsp.sysodonto.model.User;
-import br.edu.ifsp.sysodonto.service.ConsultationService;
-import br.edu.ifsp.sysodonto.service.PatientService;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -19,8 +14,16 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.edu.ifsp.sysodonto.model.Consultation;
+import br.edu.ifsp.sysodonto.model.Patient;
+import br.edu.ifsp.sysodonto.model.User;
+import br.edu.ifsp.sysodonto.service.ConsultationService;
+import br.edu.ifsp.sysodonto.service.PatientService;
+import lombok.extern.slf4j.Slf4j;
+
 @RestController
 @RequestMapping("/view/home")
+@Slf4j
 public class HomeController {
 
     @Autowired
@@ -73,47 +76,16 @@ public class HomeController {
     }
 
     @GetMapping("/consultations/today")
-    public ResponseEntity<Map<String, List<Consultation>>> getTodayConsultations(Authentication authentication) 
-            throws ExecutionException, InterruptedException {
-        
-        User loggedUser = (User) authentication.getPrincipal();
-        String userId = loggedUser.getId();
-
-        List<Consultation> allConsultations = consultationService.getConsultationsByUserId(userId);
-
-        Calendar today = Calendar.getInstance();
-        today.set(Calendar.HOUR_OF_DAY, 0);
-        today.set(Calendar.MINUTE, 0);
-        today.set(Calendar.SECOND, 0);
-        today.set(Calendar.MILLISECOND, 0);
-        
-        Calendar tomorrow = Calendar.getInstance();
-        tomorrow.setTime(today.getTime());
-        tomorrow.add(Calendar.DATE, 1);
-
-        Date startOfDay = today.getTime();
-        Date endOfDay = tomorrow.getTime();
-
-
-        List<Consultation> todayConsultations = allConsultations.stream()
-                .filter(c -> c.getDateTime() != null)
-                .filter(c -> {
-                    Date consultationDate = c.getDateTime();
-                    boolean isToday = consultationDate.compareTo(startOfDay) >= 0 && 
-                           consultationDate.compareTo(endOfDay) < 0;
-                    
-                    
-                    return isToday;
-                })
-                .sorted((c1, c2) -> {
-                    if (c1.getDateTime() == null || c2.getDateTime() == null) {
-                        return 0;
-                    }
-                    return c1.getDateTime().compareTo(c2.getDateTime());
-                })
-                .collect(Collectors.toList());
-
-
-        return ResponseEntity.ok(Map.of("consultations", todayConsultations));
+    public ResponseEntity<Map<String, List<Consultation>>> getTodayConsultations(Authentication authentication)  throws ExecutionException {
+    	try {
+    		User loggedUser = (User) authentication.getPrincipal();
+    		String userId = loggedUser.getId();    	
+    		List<Consultation> todaysConsultations = consultationService.getTodaysConsultations(userId);
+    		return ResponseEntity.ok(Map.of("consultations", todaysConsultations));
+    	}
+    	catch(Throwable t) {
+    		log.error("Error getting today's consultations.", t);
+    		return ResponseEntity.internalServerError().body(null);
+    	}
     }
 }
