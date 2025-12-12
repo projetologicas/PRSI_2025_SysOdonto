@@ -14,6 +14,7 @@ import type {ConsultationRequest} from "../types/consultation";
 import {consultationZodSchema, defaultConsultationValues} from "../features/consultation-features.ts";
 import {Calendar} from "primereact/calendar";
 import {useNavigate, useParams, useLocation} from "react-router-dom";
+import { Checkbox } from "primereact/checkbox";
 
 export function FormConsultation() {
     const { id } = useParams();
@@ -98,16 +99,13 @@ export function FormConsultation() {
             const patientObj = patients.find(p => p.id === consultation.patientId);
             console.log("Paciente encontrado:", patientObj);
 
-            let dateTimeValue = consultation.dateTime ? new Date(consultation.dateTime) : new Date();
-
-            if (consultation.dateTime && !isNaN(dateTimeValue.getTime())) {
-                dateTimeValue = new Date(dateTimeValue.getTime() - dateTimeValue.getTimezoneOffset() * 60000);
-            }
+            const dateTimeValue = consultation.dateTime ? new Date(consultation.dateTime) : new Date();
 
             reset({
                 patient: patientObj || null,
                 dateTime: dateTimeValue,
-                observations: consultation.observations || ''
+                observations: consultation.observations || '',
+                sendReminder: consultation.sendReminder ?? false
             });
 
             setInitialLoadDone(true);
@@ -139,7 +137,8 @@ export function FormConsultation() {
             patientId: dados.patient?.id,
             patientName: dados.patient?.name,
             dateTime: dados.dateTime.toISOString(),
-            observations: dados.observations
+            observations: dados.observations,
+            sendReminder: dados.sendReminder ?? false
         };
 
         console.log("Enviando dados:", requestBody);
@@ -313,6 +312,26 @@ export function FormConsultation() {
                         {errors.observations && (
                             <small className="p-error">{errors.observations.message}</small>
                         )}
+                    </div>
+
+                    <div className="mb-4">
+                        <label className="font-bold block mb-2">Lembrete</label>
+
+                        <Controller
+                            name="sendReminder"
+                            control={control}
+                            render={({ field }) => (
+                            <div className="flex align-items-center gap-2">
+                                <Checkbox
+                                inputId="sendReminder"
+                                checked={!!field.value}
+                                onChange={(e) => field.onChange(e.checked)}
+                                disabled={loading}
+                                />
+                                <label htmlFor="sendReminder">Enviar lembrete por WhatsApp</label>
+                            </div>
+                            )}
+                        />
                     </div>
 
                     <div className="flex flex-row gap-3 mt-5 justify-content-end">

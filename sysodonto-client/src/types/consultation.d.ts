@@ -11,4 +11,5 @@ export type ConsultationRequest = {
     dateTime: Date;
     observations?: string;
     patient: Patient;
+    sendReminder?: boolean;
 }

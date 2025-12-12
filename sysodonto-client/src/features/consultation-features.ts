@@ -6,6 +6,7 @@ export const defaultConsultationValues: ConsultationRequest = {
     dateTime: new Date(),
     observations: '',
     patient: undefined,
+    sendReminder: false
 }
 
 
