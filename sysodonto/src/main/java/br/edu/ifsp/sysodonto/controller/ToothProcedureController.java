@@ -1,23 +1,30 @@
 package br.edu.ifsp.sysodonto.controller;
 
-import br.edu.ifsp.sysodonto.dto.ToothProcedureRequest;
-import br.edu.ifsp.sysodonto.exceptions.ToothProcedureNotFoundException;
-import br.edu.ifsp.sysodonto.model.ToothProcedure;
-import br.edu.ifsp.sysodonto.model.User;
-import br.edu.ifsp.sysodonto.service.ToothProcedureService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import br.edu.ifsp.sysodonto.dto.ToothProcedureRequest;
+import br.edu.ifsp.sysodonto.exceptions.ToothProcedureNotFoundException;
+import br.edu.ifsp.sysodonto.model.ToothProcedure;
+import br.edu.ifsp.sysodonto.service.ToothProcedureService;
+
 @RestController
 @RequestMapping("/view/tooth-procedures")
-public class ToothProcedureController {
+public class ToothProcedureController extends SessionChecker {
 
     @Autowired
     private ToothProcedureService toothProcedureService;
@@ -27,8 +34,7 @@ public class ToothProcedureController {
             @PathVariable String patientId,
             Authentication authentication) throws ExecutionException, InterruptedException {
         
-        User loggedUser = (User) authentication.getPrincipal();
-        String userId = loggedUser.getId();
+    	String userId = getLoggedUserId(authentication);
         
         List<ToothProcedure> procedures = toothProcedureService.getProceduresByPatientIdAndUserId(patientId, userId);
         
@@ -41,9 +47,6 @@ public class ToothProcedureController {
             @PathVariable int toothNumber,
             Authentication authentication) throws ExecutionException, InterruptedException {
         
-        User loggedUser = (User) authentication.getPrincipal();
-        String userId = loggedUser.getId();
-        
         List<ToothProcedure> procedures = toothProcedureService.getProceduresByPatientIdAndToothNumber(patientId, toothNumber);
         
         return ResponseEntity.ok(Map.of("procedures", procedures));
@@ -55,8 +58,7 @@ public class ToothProcedureController {
             @RequestBody ToothProcedureRequest request,
             Authentication authentication) throws ExecutionException, InterruptedException {
         
-        User loggedUser = (User) authentication.getPrincipal();
-        String userId = loggedUser.getId();
+    	String userId = getLoggedUserId(authentication);
         
         ToothProcedure procedure = toothProcedureService.createToothProcedure(
             userId, patientId, request.getToothNumber(), 

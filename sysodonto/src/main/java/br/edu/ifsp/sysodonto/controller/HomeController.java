@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @RequestMapping("/view/home")
 @Slf4j
-public class HomeController {
+public class HomeController extends SessionChecker {
 
     @Autowired
     private PatientService patientService;
@@ -36,8 +36,7 @@ public class HomeController {
     public ResponseEntity<Map<String, Object>> getHomeStats(Authentication authentication) 
             throws ExecutionException, InterruptedException {
         
-        User loggedUser = (User) authentication.getPrincipal();
-        String userId = loggedUser.getId();
+    	String userId = getLoggedUserId(authentication);
 
         List<Patient> patients = patientService.getPatientsByUserId(userId);
         int totalPatients = patients.size();
@@ -78,8 +77,7 @@ public class HomeController {
     @GetMapping("/consultations/today")
     public ResponseEntity<Map<String, List<Consultation>>> getTodayConsultations(Authentication authentication)  throws ExecutionException {
     	try {
-    		User loggedUser = (User) authentication.getPrincipal();
-    		String userId = loggedUser.getId();    	
+    		String userId = getLoggedUserId(authentication);   	
     		List<Consultation> todaysConsultations = consultationService.getTodaysConsultations(userId);
     		return ResponseEntity.ok(Map.of("consultations", todaysConsultations));
     	}

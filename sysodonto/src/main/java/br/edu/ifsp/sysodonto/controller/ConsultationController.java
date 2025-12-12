@@ -1,19 +1,16 @@
 package br.edu.ifsp.sysodonto.controller;
 
-import br.edu.ifsp.sysodonto.exceptions.ConsultationNotFoundException;
-import br.edu.ifsp.sysodonto.exceptions.ScheduleConflictException;
-import br.edu.ifsp.sysodonto.filters.ConsultationFilter;
-import br.edu.ifsp.sysodonto.model.Consultation;
-import br.edu.ifsp.sysodonto.model.Patient;
-import br.edu.ifsp.sysodonto.model.User;
-import br.edu.ifsp.sysodonto.service.ConsultationService;
-import br.edu.ifsp.sysodonto.service.PatientService;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,13 +18,17 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
+import br.edu.ifsp.sysodonto.exceptions.ConsultationNotFoundException;
+import br.edu.ifsp.sysodonto.exceptions.ScheduleConflictException;
+import br.edu.ifsp.sysodonto.filters.ConsultationFilter;
+import br.edu.ifsp.sysodonto.model.Consultation;
+import br.edu.ifsp.sysodonto.model.Patient;
+import br.edu.ifsp.sysodonto.service.ConsultationService;
+import br.edu.ifsp.sysodonto.service.PatientService;
 
 @Controller
 @RequestMapping("/view/consultations")
-public class ConsultationController {
+public class ConsultationController extends SessionChecker {
 
     @Autowired
     private ConsultationService consultationService;
@@ -38,8 +39,7 @@ public class ConsultationController {
     @GetMapping
     public ResponseEntity<Map<String, List<Consultation>>> listConsultations(Authentication authentication) throws ExecutionException, InterruptedException {
         try {
-            User loggedUser = (User) authentication.getPrincipal();
-            String userId = loggedUser.getId();
+            String userId = getLoggedUserId(authentication);
 
             List<Consultation> consultations =
                     consultationService.getConsultationsByUserId(userId);
@@ -56,8 +56,7 @@ public class ConsultationController {
     @GetMapping("/new")
     public String showCreateForm(Model model, Authentication authentication) {
         try {
-            User loggedUser = (User) authentication.getPrincipal();
-            String userId = loggedUser.getId();
+        	String userId = getLoggedUserId(authentication);
 
             List<Patient> patients = patientService.getPatientsByUserId(userId);
 
@@ -72,12 +71,11 @@ public class ConsultationController {
     }
 
     @PostMapping
-    public ResponseEntity<Object> createConsultation(@RequestBody Consultation consultation,
+    public ResponseEntity<Object> createConsultation(@Validated @RequestBody Consultation consultation,
                                                      Authentication authentication) throws ExecutionException, InterruptedException {
 
         try {
-            User loggedUser = (User) authentication.getPrincipal();
-            String userId = loggedUser.getId();
+        	String userId = getLoggedUserId(authentication);
 
             consultation.setUserId(userId);
 
@@ -97,8 +95,7 @@ public class ConsultationController {
     public ResponseEntity<Consultation> getConsultation(@PathVariable("id") String id,
                                                        Authentication authentication) throws ExecutionException, InterruptedException {
         try {
-            User loggedUser = (User) authentication.getPrincipal();
-            String userId = loggedUser.getId();
+        	String userId = getLoggedUserId(authentication);
 
             Consultation consultation = consultationService.getConsultationById(id)
                     .orElseThrow(() -> new ConsultationNotFoundException("Consulta não encontrada"));
@@ -118,8 +115,7 @@ public class ConsultationController {
     public ResponseEntity<Consultation> getConsultationForUpdate(@PathVariable("id") String id,
                                                                 Authentication authentication) {
         try {
-            User loggedUser = (User) authentication.getPrincipal();
-            String userId = loggedUser.getId();
+        	String userId = getLoggedUserId(authentication);
 
             Consultation consultation = consultationService.getConsultationById(id)
                     .orElseThrow(() -> new ConsultationNotFoundException("Consulta não encontrada"));
@@ -142,8 +138,7 @@ public class ConsultationController {
                                                     @RequestBody Consultation consultation,
                                                     Authentication authentication) throws ExecutionException, InterruptedException {
         try {
-            User loggedUser = (User) authentication.getPrincipal();
-            String userId = loggedUser.getId();
+        	String userId = getLoggedUserId(authentication);
 
             Consultation existingConsultation = consultationService.getConsultationById(id)
                     .orElseThrow(() -> new ConsultationNotFoundException("Consulta não encontrada"));
@@ -180,8 +175,7 @@ public class ConsultationController {
             @RequestBody ConsultationFilter filter,
             Authentication authentication) throws ExecutionException, InterruptedException {
         try {
-            User loggedUser = (User) authentication.getPrincipal();
-            String userId = loggedUser.getId();
+        	String userId = getLoggedUserId(authentication);
 
             List<Consultation> consultations = consultationService.getConsultationsByFilter(userId, filter);
 

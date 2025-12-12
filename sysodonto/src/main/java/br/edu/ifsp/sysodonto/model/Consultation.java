@@ -1,27 +1,33 @@
 package br.edu.ifsp.sysodonto.model;
 
-import jakarta.validation.constraints.NotBlank;
-import lombok.Getter;
-import lombok.Setter;
+import java.util.Date;
+
 import org.springframework.format.annotation.DateTimeFormat;
 
-import java.util.Date;
+import jakarta.validation.constraints.FutureOrPresent;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter
 public class Consultation {
 
     private String id;
+    
+    @NotBlank(message="O ID do usuário não pode estar vazio")
     private String userId;
 
-    @NotBlank
+    @NotBlank(message="O ID do paciente não pode estar vazio")
     private String patientId;
 
-    @NotBlank
+    @NotNull
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
+    @FutureOrPresent(message="A data e hora da consulta devem ser num horário futuro")
     private Date dateTime;
 
-    @NotBlank
+    @NotBlank(message="O nome do paciente não deve estar vazio")
     private String patientName;
 
     private String observations;

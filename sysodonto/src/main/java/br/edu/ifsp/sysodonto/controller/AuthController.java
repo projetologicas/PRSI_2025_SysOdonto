@@ -1,5 +1,13 @@
 package br.edu.ifsp.sysodonto.controller;
 
+import java.util.concurrent.ExecutionException;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import br.edu.ifsp.sysodonto.dto.AuthRequest;
 import br.edu.ifsp.sysodonto.dto.AuthResponse;
 import br.edu.ifsp.sysodonto.dto.RegisterRequest;
@@ -8,14 +16,6 @@ import br.edu.ifsp.sysodonto.model.User;
 import br.edu.ifsp.sysodonto.service.JwtService;
 import br.edu.ifsp.sysodonto.service.UserService;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.concurrent.ExecutionException;
 
 @RestController
 @RequestMapping("/auth")

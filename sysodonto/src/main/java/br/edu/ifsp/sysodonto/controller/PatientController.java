@@ -1,24 +1,31 @@
 package br.edu.ifsp.sysodonto.controller;
 
-import br.edu.ifsp.sysodonto.filters.PatientFilter;
-import br.edu.ifsp.sysodonto.model.Patient;
-import br.edu.ifsp.sysodonto.model.User;
-import br.edu.ifsp.sysodonto.service.PatientService;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
+import br.edu.ifsp.sysodonto.filters.PatientFilter;
+import br.edu.ifsp.sysodonto.model.Patient;
+import br.edu.ifsp.sysodonto.model.User;
+import br.edu.ifsp.sysodonto.service.PatientService;
 
 @Controller
 @RequestMapping("/view/patients")
-public class PatientController {
+public class PatientController extends SessionChecker {
 
     @Autowired
     private PatientService patientService;
@@ -26,9 +33,8 @@ public class PatientController {
     @GetMapping
     public ResponseEntity<Map<String, List<Patient>>> listPatients(Authentication authentication) throws ExecutionException, InterruptedException {
         try {
-            User loggedUser = (User) authentication.getPrincipal();
-            String userId = loggedUser.getId();
-
+        	String userId = getLoggedUserId(authentication);
+        	
             List<Patient> patients = patientService.getPatientsByUserId(userId);
 
             return ResponseEntity.ok().body(Map.of(
@@ -51,8 +57,7 @@ public class PatientController {
     public ResponseEntity<Patient> getPatient(@PathVariable("id") String id,
                                               Authentication authentication) throws ExecutionException, InterruptedException {
         try {
-            User loggedUser = (User) authentication.getPrincipal();
-            String userId = loggedUser.getId();
+        	String userId = getLoggedUserId(authentication);
 
             Patient patient = patientService.getPatientById(id)
                     .orElseThrow(() -> new RuntimeException("Paciente não encontrado"));
@@ -74,13 +79,12 @@ public class PatientController {
     }
 
     @PostMapping
-    public ResponseEntity<Object> createPatient(@RequestBody Patient patient,
+    public ResponseEntity<Object> createPatient(@Validated @RequestBody Patient patient,
                                                 Authentication authentication
     ) throws ExecutionException, InterruptedException {
 
         try {
-            User loggedUser = (User) authentication.getPrincipal();
-            String userId = loggedUser.getId();
+        	String userId = getLoggedUserId(authentication);
 
             patient.setUserId(userId);
 
@@ -99,8 +103,7 @@ public class PatientController {
     public ResponseEntity<Patient> getPatientForUpdate(@PathVariable("id") String id,
                                                        Authentication authentication) {
         try {
-            User loggedUser = (User) authentication.getPrincipal();
-            String userId = loggedUser.getId();
+        	String userId = getLoggedUserId(authentication);
 
             Patient patient = patientService.getPatientById(id)
                     .orElseThrow(() -> new RuntimeException("Paciente não encontrado"));
@@ -123,8 +126,7 @@ public class PatientController {
                                                 @RequestBody Patient patient,
                                                 Authentication authentication) throws ExecutionException, InterruptedException {
         try {
-            User loggedUser = (User) authentication.getPrincipal();
-            String userId = loggedUser.getId();
+        	String userId = getLoggedUserId(authentication);
 
             Patient existingPatient = patientService.getPatientById(id)
                     .orElseThrow(() -> new RuntimeException("Paciente não encontrado"));
@@ -157,8 +159,7 @@ public class PatientController {
             @RequestBody PatientFilter filter,
             Authentication authentication) throws ExecutionException, InterruptedException {
         try {
-            User loggedUser = (User) authentication.getPrincipal();
-            String userId = loggedUser.getId();
+        	String userId = getLoggedUserId(authentication);
 
             List<Patient> patients = patientService.getPatientsByFilter(userId, filter);
 

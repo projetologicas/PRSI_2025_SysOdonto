@@ -23,7 +23,7 @@ import static br.edu.ifsp.sysodonto.service.EmailRecoveryService.generateCodeRec
 
 @RestController
 @RequestMapping("/view/user")
-public class UserController {
+public class UserController extends SessionChecker {
 
     @Autowired
     private UserService userService;
@@ -33,8 +33,7 @@ public class UserController {
 
     @GetMapping("/profile")
     public ResponseEntity<User> getProfile(Authentication authentication) throws ExecutionException, InterruptedException {
-        User loggedUser = (User) authentication.getPrincipal();
-        String userId = loggedUser.getId();
+    	String userId = getLoggedUserId(authentication);
 
         return userService.getUserById(userId)
                 .map(ResponseEntity::ok)
@@ -45,8 +44,7 @@ public class UserController {
     public ResponseEntity<?> updateProfile(@RequestBody Map<String, Object> requestData,
                                            Authentication authentication) throws ExecutionException, InterruptedException {
         try {
-            User loggedUser = (User) authentication.getPrincipal();
-            String userId = loggedUser.getId();
+        	String userId = getLoggedUserId(authentication);
 
             String name = (String) requestData.get("name");
             String profilePicture = (String) requestData.get("profilePicture");
@@ -71,8 +69,7 @@ public class UserController {
     public ResponseEntity<?> changePassword(@RequestBody Map<String, String> requestData,
                                             Authentication authentication) throws ExecutionException, InterruptedException {
         try {
-            User loggedUser = (User) authentication.getPrincipal();
-            String userId = loggedUser.getId();
+        	String userId = getLoggedUserId(authentication);
 
             String currentPassword = requestData.get("currentPassword");
             String newPassword = requestData.get("newPassword");
