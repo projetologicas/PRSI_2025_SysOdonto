@@ -16,7 +16,6 @@ public class Consultation {
 
     private String id;
     
-    @NotBlank(message="O ID do usuário não pode estar vazio")
     private String userId;
 
     @NotBlank(message="O ID do paciente não pode estar vazio")
