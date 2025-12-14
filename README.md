@@ -22,7 +22,7 @@ O projeto **SysOdonto** foi desenvolvido por alunos do curso de **Análise e Des
 - **Firebase Authentication:** Responsável pela autenticação de usuários (dentistas).  
 - **Google Firestore:** Banco de dados NoSQL em nuvem utilizado para persistência dos dados.  
 - **API REST:** Comunicação entre frontend e backend.  
-- **API de Mensageria (WhatsApp):** Utilizada para envio automático de lembretes de consultas aos pacientes.  
+- **Bot de mensageria:** Utilizada para automatizar o envio de lembretes de consultas aos pacientes.  
 - **Git & GitHub:** Controle de versão e hospedagem do repositório do projeto.  
 - **Trello:** Gerenciamento das tarefas do projeto utilizando metodologia ágil (Kanban).  
 - **Canva:** Utilizado para criação e validação dos protótipos de interface.
