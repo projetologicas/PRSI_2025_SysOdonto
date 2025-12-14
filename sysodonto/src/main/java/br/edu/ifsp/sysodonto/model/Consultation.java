@@ -31,8 +31,6 @@ public class Consultation {
 
     private String observations;
     
-    private boolean sendReminder;
-
     public Consultation() {}
 
     public Consultation(String userId, String patientId, Date dateTime, String patientName, String observations) {

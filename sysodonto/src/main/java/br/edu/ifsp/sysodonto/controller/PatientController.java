@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import br.edu.ifsp.sysodonto.filters.PatientFilter;
 import br.edu.ifsp.sysodonto.model.Patient;
-import br.edu.ifsp.sysodonto.model.User;
 import br.edu.ifsp.sysodonto.service.PatientService;
 
 @Controller

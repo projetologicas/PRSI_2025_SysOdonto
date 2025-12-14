@@ -2,7 +2,6 @@ package br.edu.ifsp.sysodonto.service;
 
 import java.text.SimpleDateFormat;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -53,19 +52,7 @@ public class WhatsAppBotService implements Runnable {
 		try {
 			List<Consultation> consultations = consultationService.getTomorrowConsultations(userId);
 			
-			List<Consultation> consultationsToRemind = new ArrayList<Consultation>();
-			List<Patient> patientsToRemind = new ArrayList<Patient>();
-			
-			
 			if (! CollectionUtils.isEmpty(consultations)) {
-				for (Consultation c : consultations) {
-					if (c.isSendReminder()) {
-						Patient patient = patientService.getPatientById(c.getPatientId()).get();
-						patientsToRemind.add(patient);
-						consultationsToRemind.add(c);
-					}
-				}
-				
 				ChromeOptions options = new ChromeOptions();
 				WebDriver driver = new ChromeDriver(options);
 				driver.get("https://web.whatsapp.com/");
@@ -73,9 +60,11 @@ public class WhatsAppBotService implements Runnable {
 				WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(120));
 				WebElement searchBox = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(xpathSearchBox)));
 				
-				for (int i = 0; i < consultationsToRemind.size(); i++) {
-					Consultation consultation = consultationsToRemind.get(i);
-					Patient patient = patientsToRemind.get(i);
+				for (int i = 0; i < consultations.size(); i++) {
+					Consultation consultation = consultations.get(i);
+					Patient patient = patientService.getPatientById(consultation.getPatientId()).orElse(null);
+					
+					if (patient == null) continue;
 
 					try {
 						wait.until(ExpectedConditions.elementToBeClickable(searchBox));
