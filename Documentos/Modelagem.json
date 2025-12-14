@@ -1,0 +1,46 @@
+{
+  "users": [
+    {
+      "id": "MrGAXRoLlrhXia9ktWCe",
+      "email": "nicole@gmail.com",
+      "name": "Nicole Olenscki",
+      "profilePicture": "",
+      "password": "12345"
+    }
+  ],
+  "patients": [
+    {
+      "id": "aF3nQ1vZxP9bRt7KcJ4L",
+      "userId": "MrGAXRoLlrhXia9ktWCe",
+      "name": "Pedro Silva",
+      "picture": "",
+      "cpf": "123.456.789-00",
+      "telephone": "11997665544",
+      "birthDate": "01/01/2000",
+      "startTreatmentDate": "01/01/2020",
+      "observations": "Pendências nas parcelas R$400: 4/12",
+      "odontogram": {
+        "picture": "",
+        "procedures": [
+          {
+            "id": "U7yT2mLpXz4sVq9BfE8R",
+            "toothId": 4,
+            "procedureName": "Extração",
+            "description": "Não houve complicações",
+            "procedureDate": "10/01/2020"
+          }
+        ]
+      }
+    }
+  ],
+  "consultations": [
+    {
+      "id": "k6HjP0rWqN1tVx9uGd3M",
+      "userId": "MrGAXRoLlrhXia9ktWCe",
+      "patientId": "aF3nQ1vZxP9bRt7KcJ4L",
+      "patientName": "Pedro Silva",
+      "observations": "Paciente disse que pode atrasar 5 min.",
+      "dateTime": "10/01/2020 14:30"
+    }
+  ]
+}
