@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.http.auth.InvalidCredentialsException;
 import org.openqa.selenium.By;
@@ -15,6 +16,7 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -33,6 +35,9 @@ public class WhatsAppBotService implements Runnable {
 	
 	@Autowired
 	private PatientService patientService;
+	
+	@Autowired
+	private MessageSource messageSource;
 	
 	private final String xpathSearchBox = "/html/body/div[1]/div/div/div/div/div[3]/div/div[4]/div/div[1]/div/div[2]/div/div/div[1]";
 	private final String xpathPatientBox = "/html/body/div[1]/div/div/div/div/div[3]/div/div[4]/div/div[3]/div[1]/div/div/div[2]/div/div/div/div[2]";
@@ -121,12 +126,8 @@ public class WhatsAppBotService implements Runnable {
 		String date = sdfDate.format(consultation.getDateTime());
 		String time = sdfTime.format(consultation.getDateTime());
 		
-		StringBuilder message = new StringBuilder();
-		message.append("Olá, " + patient.getName() + ". ");
-		message.append("Você possui uma consulta no dia " + date + " às " + time + ". ");
-		message.append("Posso confirmar sua presença?");
-		
-		return message.toString();
+		String message = messageSource.getMessage("bot.default.message", new String[] {patient.getName(), date, time}, Locale.getDefault());
+		return message;
 	}
 	
 	private void pause(long millis) {
