@@ -143,14 +143,17 @@ public class PatientController extends SessionChecker {
                     "message", "Paciente atualizado com sucesso!",
                     "patient", updatedPatient
             ));
-
-        } catch (ExecutionException | InterruptedException e) {
-            throw e;
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
-                    "error", e.getMessage()
+        } 
+        catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                    "message", e.getMessage()
             ));
         }
+        catch (ExecutionException | InterruptedException e) {
+        	return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
+                    "message", e.getMessage()
+            ));
+        } 
     }
 
     @PostMapping("/filter")

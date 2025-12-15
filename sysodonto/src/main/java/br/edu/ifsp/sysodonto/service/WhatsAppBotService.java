@@ -109,7 +109,7 @@ public class WhatsAppBotService implements Runnable {
 		catch(NoSuchSessionException e) {
 			log.warn("Skipping WhatsApp bot.");
 		}
-		catch(Throwable t ) {
+		catch(Throwable t) {
 			log.error("Error loading chrome driver.", t);
 		}
 	}
