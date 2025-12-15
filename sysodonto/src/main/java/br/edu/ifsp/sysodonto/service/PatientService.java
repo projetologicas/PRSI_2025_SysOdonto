@@ -30,7 +30,7 @@ public class PatientService {
             throw new InvalidCpfException("CPF inválido");
         }
 
-        if (patientRepository.findByCpf(patient.getCpf()).isPresent()) {
+        if (patientRepository.findByCpf(patient.getCpf(), patient.getUserId()).isPresent()) {
             throw new CpfAlreadyUsedException("CPF já cadastrado");
         }
 
@@ -38,7 +38,7 @@ public class PatientService {
             throw new InvalidTelephoneException("Telefone inválido");
         }
 
-        if (patientRepository.findByTelephone(patient.getTelephone()).isPresent()) {
+        if (patientRepository.findByTelephone(patient.getTelephone(), patient.getUserId()).isPresent()) {
             throw new TelephoneAlreadyUsedException("Telefone já cadastrado");
         }
 
@@ -67,7 +67,7 @@ public class PatientService {
             throw new InvalidCpfException("CPF inválido");
         }
 
-        Optional<Patient> patientWithSameCpf = patientRepository.findByCpf(patient.getCpf());
+        Optional<Patient> patientWithSameCpf = patientRepository.findByCpf(patient.getCpf(), patient.getUserId());
         if (patientWithSameCpf.isPresent() && !patientWithSameCpf.get().getId().equals(id)) {
             throw new CpfAlreadyUsedException("CPF já cadastrado em outro paciente");
         }
@@ -76,7 +76,7 @@ public class PatientService {
             throw new InvalidTelephoneException("Telefone inválido");
         }
 
-        Optional<Patient> patientWithSamePhone = patientRepository.findByTelephone(patient.getTelephone());
+        Optional<Patient> patientWithSamePhone = patientRepository.findByTelephone(patient.getTelephone(), patient.getUserId());
         if (patientWithSamePhone.isPresent() && !patientWithSamePhone.get().getId().equals(id)) {
             throw new TelephoneAlreadyUsedException("Telefone já cadastrado em outro paciente");
         }
@@ -89,14 +89,6 @@ public class PatientService {
         return patientRepository.delete(id);
     }
 
-    public boolean cpfExists(String cpf) throws ExecutionException, InterruptedException {
-        return patientRepository.findByCpf(cpf).isPresent();
-    }
-
-    public boolean phoneExists(String telephone) throws ExecutionException, InterruptedException {
-        return patientRepository.findByTelephone(telephone).isPresent();
-    }
-    
     public List<Patient> getPatientsByFilter(String userId, PatientFilter filter) 
             throws ExecutionException, InterruptedException {
         

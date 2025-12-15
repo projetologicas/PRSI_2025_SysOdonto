@@ -75,9 +75,9 @@ public class PatientRepository {
         return patientList;
     }
 
-    public Optional<Patient> findByTelephone(String telephone) throws ExecutionException, InterruptedException {
+    public Optional<Patient> findByTelephone(String telephone, String dentistId) throws ExecutionException, InterruptedException {
         CollectionReference patients = db.collection(patientsCollection);
-        Query query = patients.whereEqualTo("telephone", telephone);
+        Query query = patients.whereEqualTo("telephone", telephone).whereEqualTo("userId", dentistId);
         ApiFuture<QuerySnapshot> future = query.get();
         QuerySnapshot querySnapshot = future.get();
         
@@ -87,9 +87,9 @@ public class PatientRepository {
         return Optional.empty();
     }
     
-    public Optional<Patient> findByCpf(String cpf) throws ExecutionException, InterruptedException {
+    public Optional<Patient> findByCpf(String cpf, String dentistId) throws ExecutionException, InterruptedException {
         CollectionReference patients = db.collection(patientsCollection);
-        Query query = patients.whereEqualTo("cpf", cpf);
+        Query query = patients.whereEqualTo("cpf", cpf).whereEqualTo("userId", dentistId);
         ApiFuture<QuerySnapshot> future = query.get();
         QuerySnapshot querySnapshot = future.get();
         

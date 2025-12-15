@@ -129,7 +129,7 @@ public class PatientController extends SessionChecker {
 
             Patient existingPatient = patientService.getPatientById(id)
                     .orElseThrow(() -> new RuntimeException("Paciente não encontrado"));
-
+            
             if (!existingPatient.getUserId().equals(userId)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
