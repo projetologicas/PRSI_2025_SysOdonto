@@ -8,6 +8,7 @@ import java.util.Locale;
 import org.apache.http.auth.InvalidCredentialsException;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
+import org.openqa.selenium.NoSuchSessionException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -57,8 +58,10 @@ public class WhatsAppBotService implements Runnable {
 				WebDriver driver = new ChromeDriver(options);
 				driver.get("https://web.whatsapp.com/");
 				
-				WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(120));
-				WebElement searchBox = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(xpathSearchBox)));
+				WebDriverWait longWait = new WebDriverWait(driver, Duration.ofSeconds(120));
+				WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(15));
+				
+				WebElement searchBox = longWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(xpathSearchBox)));
 				
 				for (int i = 0; i < consultations.size(); i++) {
 					Consultation consultation = consultations.get(i);
@@ -67,7 +70,7 @@ public class WhatsAppBotService implements Runnable {
 					if (patient == null) continue;
 
 					try {
-						wait.until(ExpectedConditions.elementToBeClickable(searchBox));
+						longWait.until(ExpectedConditions.elementToBeClickable(searchBox));
 						searchBox.click();
 						pause(500);
 						
@@ -78,12 +81,12 @@ public class WhatsAppBotService implements Runnable {
 						typeHumanLike(searchBox, patient.getTelephone());
 					    pause(2000); 
 
-					    WebElement patientBox = wait.until(ExpectedConditions.elementToBeClickable(By.xpath(xpathPatientBox)));
+					    WebElement patientBox = shortWait.until(ExpectedConditions.elementToBeClickable(By.xpath(xpathPatientBox)));
 					    patientBox.click();
 					    
-					    pause(1500);
+					    pause(800);
 
-					    WebElement messageInput = wait.until(ExpectedConditions.elementToBeClickable(By.xpath(xpathMessageInput)));
+					    WebElement messageInput = shortWait.until(ExpectedConditions.elementToBeClickable(By.xpath(xpathMessageInput)));
 					    messageInput.click();
 					    pause(300);
 
@@ -91,17 +94,20 @@ public class WhatsAppBotService implements Runnable {
 					    
 					    messageInput.sendKeys(reminder);
 					    
-					    WebElement sendButton = wait.until(ExpectedConditions.elementToBeClickable(By.xpath(xpathSendMessageButton)));
+					    WebElement sendButton = shortWait.until(ExpectedConditions.elementToBeClickable(By.xpath(xpathSendMessageButton)));
 					    sendButton.click();
 
-					    pause(2000);
+					    pause(1000);
 					}
-					catch (Exception e) {
-						log.error("Error sending reminder to " + patient.getName() + ".", e);
+					catch (org.openqa.selenium.TimeoutException te) {
+						log.warn("Could not send message to telephone: " + patient.getTelephone() + ". Please, check if it exists");
 					}
 				}				
 			}
 			
+		}
+		catch(NoSuchSessionException e) {
+			log.warn("Skipping WhatsApp bot.");
 		}
 		catch(Throwable t ) {
 			log.error("Error loading chrome driver.", t);
@@ -130,7 +136,7 @@ public class WhatsAppBotService implements Runnable {
 	private void typeHumanLike(WebElement element, String text) {
 	    for (char c : text.toCharArray()) {
 	        element.sendKeys(String.valueOf(c));
-	        pause(50 + (long)(Math.random() * 100));
+	        pause(50 + (long)(Math.random() * 80));
 	    }
 	}
 
